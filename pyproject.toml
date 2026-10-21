@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mnemo-cli"
+version = "0.1.0"
+description = "A dependency-free, local-first spaced-repetition flashcard CLI"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "AI Assistant" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+mnemo = "mnemo.cli:main"

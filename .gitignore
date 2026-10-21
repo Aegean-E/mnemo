@@ -1,5 +1,17 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # AIKit transient state
 .aikit/*.lock
 .aikit/*.bak
 .aikit/*.tmp_*
 .aikit/*.corrupt_*
+
+# Local decks and their recovery files
+mnemo.json
+mnemo.json.bak
+mnemo.json.lock
+mnemo.json.stale_*
+.corrupt_mnemo.json_*
+.mnemo.json.tmp_*

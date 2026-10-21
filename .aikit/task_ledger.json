@@ -1,5 +1,38 @@
 {
   "version": 1,
-  "active_task": null,
-  "checkpoints": []
+  "active_task": {
+    "task_id": "mnemo-sm2-v1",
+    "last_phase": "phase 4",
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1792612952.35287
+  },
+  "checkpoints": [
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/6] Scaffold: Card model, crash-safe JSON deck store, add/list commands and CLI with failing-first unit tests, README, pyproject, LICENSE, ADR-001",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792609267.7700837,
+      "timestamp_str": "2026-10-21 22:01:07",
+      "impact_assessment": {
+        "why": "The kit has no spaced-repetition project: learning is a daily developer activity and every existing SRS tool either syncs to a cloud or drags in dependencies, so a local-first, stdlib-only SM-2 flashcard CLI fills the gap",
+        "benefits": "deterministic SM-2 scheduling as pure functions is fully unit-testable; one readable JSON deck file with atomic writes, backup and locking keeps the study state crash-safe; add/list/study/stats give a complete daily loop with zero setup and a sub-10-second demo",
+        "risks": "contract: deck schema {version, cards, reviews} is fixed at version 1 so later fields need migration; dependency: none beyond the standard library; concurrency: two mnemo processes mutate one deck file; state: a corrupt deck file must never lose cards",
+        "mitigation": "schema version checked on read and unknown versions refused in place; the store mirrors tally's proven atomic path (temp + fsync + os.replace, .bak, 3s/30s advisory lock, quarantine); scheduling is pure and clock-injected so tests pin dates exactly"
+      }
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/6] Scaffold complete: Card/Review models, crash-safe DeckState store, deck add/find/list, add/list CLI; 39 tests green (failing-first: 4 import errors before implementation); aikit fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792612952.35287,
+      "timestamp_str": "2026-10-21 23:02:32"
+    }
+  ]
 }
