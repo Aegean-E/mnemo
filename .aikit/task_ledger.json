@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1792614567.5597448
+    "updated_at": 1792615119.876107
   },
   "checkpoints": [
     {
@@ -53,6 +53,16 @@
       "status": "in_progress",
       "timestamp": 1792614567.5597448,
       "timestamp_str": "2026-10-21 23:29:27"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[4/6] Stats complete: pure summarize() with maturity counts, due-today, log-based retention and 7-day forecast; stats command and Deck.snapshot; 75 tests green (failing-first: 3 errors before implementation); fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792615119.876107,
+      "timestamp_str": "2026-10-21 23:38:39"
     }
   ]
 }

@@ -35,13 +35,17 @@ class Deck:
         self.store.update(mutate)
         return created[0]
 
+    def snapshot(self) -> DeckState:
+        """Every card and every logged review, in one read."""
+        return self.store.read()
+
     def entries(self) -> List[Card]:
         """Every card, sorted by id."""
-        return sorted(self.store.read().cards, key=lambda card: card.id)
+        return sorted(self.snapshot().cards, key=lambda card: card.id)
 
     def due_cards(self, today: str) -> List[Card]:
         """Every card due on `today` or earlier, earliest due first."""
-        due = [card for card in self.store.read().cards if is_due(card, today)]
+        due = [card for card in self.snapshot().cards if is_due(card, today)]
         return sorted(due, key=lambda card: (card.due, card.id))
 
     def find(self, card_id: int) -> Card:

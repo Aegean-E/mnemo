@@ -62,4 +62,21 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   leaves finished reviews committed and the rest of the queue due today. Very long piped input
   cannot loop forever: end-of-input ends the session at the next read.
 
+### ADR-004: Statistics are defined over the whole review log, purely
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Context**: A spaced-repetition tool invites invented metrics (daily streaks, "true
+  retention", workload scores) whose definitions drift with mood. Every number `stats` prints
+  must have one definition a test can pin, computed without side effects.
+- **Decision**: `summarize(cards, reviews, today)` is a pure function returning a frozen
+  `DeckStats`. Definitions: due today = cards whose due day is `today` or earlier; maturity is
+  new (no repetitions), learning (interval under 21 days), mature (interval at least 21 days);
+  retention = the share of logged reviews graded 3 or higher, absent when nothing is logged;
+  forecast = for each of the next seven days including today, the count of cards due exactly
+  that day.
+- **Consequences**: The command's output is fully determined by the deck file and the day, so a
+  test pins it exactly. Overdue cards count toward due today but toward no forecast day, so a
+  neglected deck shows its backlog in one number. Retention over the whole log moves slowly;
+  windowed retention is deliberately not invented here.
+
 

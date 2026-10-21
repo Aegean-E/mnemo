@@ -115,6 +115,28 @@ class CliTests(unittest.TestCase):
         self.assertIn("Error:", stderr)
         self.assertIn("Fix:", stderr)
 
+    def test_stats_renders_the_deck_summary(self):
+        self.run_cli("add", "one", "--back", "1")
+        self.run_cli("add", "two", "--back", "2")
+        code, output, _ = self.run_cli("stats")
+        self.assertEqual(code, 0)
+        self.assertIn("cards: 2", output)
+        self.assertIn("due today", output)
+        self.assertIn("retention", output)
+
+    def test_stats_after_a_session_reports_full_retention(self):
+        from unittest import mock
+        self.run_cli("add", "one", "--back", "1")
+        with mock.patch("builtins.input", side_effect=["", "4"]):
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = main(["--db", self.db, "study"])
+        self.assertEqual(code, 0)
+        code, output, _ = self.run_cli("stats")
+        self.assertEqual(code, 0)
+        self.assertIn("retention: 100%", output)
+        self.assertIn("reviews logged: 1", output)
+
 
 if __name__ == "__main__":
     unittest.main()

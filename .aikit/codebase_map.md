@@ -6,11 +6,11 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `16`
-- **Total Classes**: `19`
-- **Total Top-Level Functions**: `25`
-- **Total Class Methods**: `107`
-- **Total Source Lines**: `1487`
+- **Total Python Modules**: `18`
+- **Total Classes**: `21`
+- **Total Top-Level Functions**: `28`
+- **Total Class Methods**: `115`
+- **Total Source Lines**: `1639`
 
 ---
 
@@ -33,13 +33,14 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: `add` and `list` over one deck file.*
 
-**Size**: `106` lines (`3850` bytes)
+**Size**: `124` lines (`4725` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
 - `def run_add(deck, args)` - *Validate the arguments, record the card and echo it.*
 - `def run_list(deck, args)` - *Print one line per card, or say the deck is empty.*
 - `def run_study(deck, args)` - *Run one guided session over the due cards, reading stdin line by line.*
+- `def run_stats(deck, args)` - *Print the deck's counts, retention and seven-day due forecast.*
 - `def main(argv)` - *Run one command; user errors print the Why/Fix triad and exit 1.*
 
 ---
@@ -47,12 +48,13 @@
 ### [`mnemo/deck.py`](mnemo/deck.py)
 > *Deck operations: adding, finding, listing, due selection and review recording.*
 
-**Size**: `80` lines (`3180` bytes)
+**Size**: `84` lines (`3310` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
   - Method `.__init__(store)`
   - Method `.add_card(front, back, deck, today)` - *Record a new card, due today, and return it with its assigned id.*
+  - Method `.snapshot()` - *Every card and every logged review, in one read.*
   - Method `.entries()` - *Every card, sorted by id.*
   - Method `.due_cards(today)` - *Every card due on `today` or earlier, earliest due first.*
   - Method `.find(card_id)` - *One card by id, or the Why/Fix triad when it is absent.*
@@ -112,6 +114,19 @@
 
 ---
 
+### [`mnemo/stats.py`](mnemo/stats.py)
+> *Deck statistics: pure counts, retention and forecast over cards, reviews and one day.*
+
+**Size**: `46` lines (`1571` bytes)
+
+**Classes:**
+- `class DeckStats` - *One deck's position on a day, as the `stats` command reports it.*
+
+**Functions:**
+- `def summarize(cards, reviews, today)` - *The deck's counts, retention and seven-day due forecast for `today`.*
+
+---
+
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
@@ -161,7 +176,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `120` lines (`4663` bytes)
+**Size**: `142` lines (`5638` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -178,6 +193,8 @@
   - Method `.test_study_runs_a_scripted_session()`
   - Method `.test_study_on_an_empty_deck()`
   - Method `.test_study_rejects_a_non_positive_limit()`
+  - Method `.test_stats_renders_the_deck_summary()`
+  - Method `.test_stats_after_a_session_reports_full_retention()`
 
 ---
 
@@ -253,6 +270,24 @@
 
 **Functions:**
 - `def make_card(**overrides)`
+
+---
+
+### [`tests/test_stats.py`](tests/test_stats.py)
+> *Tests of the pure deck statistics over cards, reviews and a fixed day.*
+
+**Size**: `62` lines (`2335` bytes)
+
+**Classes:**
+- `class SummarizeTests`
+  - Method `.test_counts_by_maturity_and_due()`
+  - Method `.test_retention_from_the_review_log()`
+  - Method `.test_retention_is_absent_without_reviews()`
+  - Method `.test_forecast_covers_seven_days_from_today()`
+  - Method `.test_empty_deck()`
+
+**Functions:**
+- `def make_card(card_id, **overrides)`
 
 ---
 
