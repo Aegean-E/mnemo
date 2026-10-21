@@ -207,6 +207,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("cards: 1", output)
 
+    def test_non_ascii_cards_print_on_a_legacy_console(self):
+        buffer = io.BytesIO()
+        legacy = io.TextIOWrapper(buffer, encoding="cp1254", errors="strict")
+        with redirect_stdout(legacy), redirect_stderr(legacy):
+            code = main(["--db", self.db, "add", "hiragana a", "--back", "あ"])
+        legacy.flush()
+        self.assertEqual(code, 0)
+        self.assertIn("あ".encode("utf-8"), buffer.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

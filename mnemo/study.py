@@ -57,7 +57,8 @@ def _summarize(deck: Deck, today: str, reviewed: int, passed: int, lapsed: int,
     cards = deck.entries()
     remaining = [card for card in cards if is_due(card, today)]
     if remaining:
-        write_line(f"{len(remaining)} cards still due today.")
+        noun = "card" if len(remaining) == 1 else "cards"
+        write_line(f"{len(remaining)} {noun} still due today.")
     elif cards:
         write_line(f"Next session: {min(card.due for card in cards)}.")
 

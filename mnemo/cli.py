@@ -148,8 +148,21 @@ def run_stats(deck: Deck, args: argparse.Namespace) -> None:
         print(f"  {due_day}  {count}")
 
 
+def _utf8_streams() -> None:
+    """Print UTF-8 on any console; a stream that cannot reconfigure keeps its own encoding."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            continue
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run one command; user errors print the Why/Fix triad and exit 1."""
+    _utf8_streams()
     args = build_parser().parse_args(argv)
     deck = Deck(StateStore(Path(args.db)))
     try:

@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1792615750.9466693
+    "updated_at": 1792621277.5870814
   },
   "checkpoints": [
     {
@@ -73,6 +73,16 @@
       "status": "in_progress",
       "timestamp": 1792615750.9466693,
       "timestamp_str": "2026-10-21 23:49:10"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[6/6] Polish complete: dogfooding found and fixed (a) legacy-console UnicodeEncodeError on non-Latin cards via UTF-8 stream reconfigure, (b) corrupt-deck recovery left the live path missing; recovery now restores the backup in place (ADR-006) and one-card pluralization fixed; demo 0.77s <10s, --help 132ms <200ms, chaos check verified; 93 tests green (failing-first for all 3 fixes); fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792621277.5870814,
+      "timestamp_str": "2026-10-22 01:21:17"
     }
   ]
 }

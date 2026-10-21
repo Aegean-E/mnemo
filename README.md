@@ -45,7 +45,8 @@ machine.
 - **Crash-safe writes.** Each save keeps a `.bak`, writes a temporary file, fsyncs it, then
   replaces the deck atomically. A transient Windows sharing violation is retried; any other
   replace failure is reported at once. A failed backup or directory fsync prints a warning. A
-  malformed file is quarantined and the backup is restored.
+  malformed file is quarantined and the last backup is restored into place, so the next command
+  still sees the deck.
 - **One writer at a time.** Read-modify-write operations hold an advisory `.lock` with a 3-second
   wait; a lock older than 30 seconds is broken.
 - **Sessions are line-driven.** `study` walks the due queue: question, Enter to reveal, answer,
@@ -58,6 +59,9 @@ machine.
 - **Decks partition the file, not the machine.** `--deck` narrows `list`, `study` and `stats` to
   one label; `edit` can move a card between decks. The review log is append-only, so removing a
   card keeps its history in the retention numbers.
+- **UTF-8 everywhere.** The deck file is always UTF-8, and the CLI reconfigures its output
+  streams to UTF-8 with replacement, so non-Latin scripts print instead of crashing on legacy
+  consoles.
 - **Clear failures.** Every user error prints `Error:`, `Why:` and `Fix:`, and exits 1.
 
 ### Commands
@@ -106,4 +110,5 @@ mnemo/
 
 The on-disk schema, the crash-safety envelope and the id policy are recorded in
 `.aikit/decisions.md` (ADR-001); the scheduling contract in ADR-002; the session input/output
-contract in ADR-003; the statistics definitions in ADR-004.
+contract in ADR-003; the statistics definitions in ADR-004; card management in ADR-005;
+corrupt-deck recovery in ADR-006.

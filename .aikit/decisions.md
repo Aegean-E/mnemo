@@ -96,4 +96,21 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   remembers answers of cards no longer in the deck; that is the honest history, and bounding the
   log remains the open cost noted in ADR-001.
 
+### ADR-006: A corrupt deck is restored in place from its backup
+- **Date**: 2026-10-22
+- **Status**: Accepted
+- **Context**: Dogfooding a corrupted deck file showed that recovery was read-only: the bad file
+  was quarantined and the backup decoded in memory, but the deck path stayed missing, so the
+  next command saw an empty deck and a later `add` would have saved an almost-empty deck while
+  the recovered cards existed only in memory and `.bak`. The tool looked like it had silently
+  lost everything.
+- **Decision**: When the backup parses, the store decodes it, writes it back to the deck path
+  through the same atomic temp + fsync + replace path (without making a fresh backup copy, so
+  the backup itself survives), and only then returns it. If the restore write itself fails, the
+  in-memory state is still returned with a warning.
+- **Consequences**: Recovery survives the next command, and both the quarantined corrupt file
+  and the backup remain on disk for inspection. The backup holds the state before the last
+  save, so recovery can lose that single most recent write; that residual risk is ADR-001's
+  stated cost and the warning now says what happened.
+
 

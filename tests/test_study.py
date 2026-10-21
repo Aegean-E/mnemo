@@ -92,6 +92,13 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(report.reviewed, 2)
         self.assertIn("still due today", output.text())
 
+    def test_one_remaining_card_is_singular(self):
+        self.deck.add_card("front 1", "back", "default", "2026-10-21")
+        self.deck.add_card("front 2", "back", "default", "2026-10-21")
+        output = CaptureOutput()
+        run_session(self.deck, "2026-10-21", 1, self.script("", "4"), output)
+        self.assertIn("1 card still due today", output.text())
+
     def test_summary_names_the_next_due_day(self):
         self.deck.add_card("front", "back", "default", "2026-10-21")
         output = CaptureOutput()

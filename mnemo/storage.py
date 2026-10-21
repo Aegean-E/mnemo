@@ -69,13 +69,20 @@ class StateStore:
         return self._decode(data)
 
     def _backup_or_empty(self, reason: str, quarantine: bool) -> DeckState:
-        """Use the backup when it parses; otherwise quarantine the bad file and start empty."""
+        """Use the backup when it parses, restoring it in place; else start empty."""
         if quarantine:
             self._quarantine()
         backup = self._read_backup()
         if backup is not None:
-            print(f"[WARN] {reason}; recovered from {self.backup_path.name}.", file=sys.stderr)
-            return self._decode(backup)
+            state = self._decode(backup)
+            try:
+                self._restore(state)
+            except MnemoError as error:
+                print(f"[WARN] Could not restore {self.path.name}: {error.message}",
+                      file=sys.stderr)
+            print(f"[WARN] {reason}; restored {self.path.name} from "
+                  f"{self.backup_path.name}.", file=sys.stderr)
+            return state
         print(f"[WARN] {reason}; starting with an empty deck.", file=sys.stderr)
         return DeckState(cards=[], reviews=[])
 
@@ -124,6 +131,34 @@ class StateStore:
     def _save(self, state: DeckState) -> None:
         """Write the deck atomically, keeping the previous version as a backup."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._ensure_free_space()
+        if self.path.exists():
+            try:
+                shutil.copy2(self.path, self.backup_path)
+            except OSError as exc:
+                print(
+                    f"[WARN] Could not write backup {self.backup_path.name}: {exc}",
+                    file=sys.stderr,
+                )
+        self._write_atomic(self._payload(state))
+
+    def _restore(self, state: DeckState) -> None:
+        """Put recovered state back at the deck path so later commands see it."""
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._write_atomic(self._payload(state))
+
+    @staticmethod
+    def _payload(state: DeckState) -> str:
+        """The deck as the text one atomic write stores."""
+        return json.dumps(
+            {"version": STATE_VERSION, "cards": [card.as_dict() for card in state.cards],
+             "reviews": [review.as_dict() for review in state.reviews]},
+            indent=2,
+            ensure_ascii=False,
+        )
+
+    def _ensure_free_space(self) -> None:
+        """Refuse a write that leaves too little room for the next recovery."""
         free = shutil.disk_usage(self.path.parent).free
         if free < MIN_FREE_BYTES:
             raise MnemoError(
@@ -131,12 +166,9 @@ class StateStore:
                 "a deck write needs at least 10 MB of headroom to stay crash-safe.",
                 "free disk space, or point --db at another volume.",
             )
-        payload = json.dumps(
-            {"version": STATE_VERSION, "cards": [card.as_dict() for card in state.cards],
-             "reviews": [review.as_dict() for review in state.reviews]},
-            indent=2,
-            ensure_ascii=False,
-        )
+
+    def _write_atomic(self, payload: str) -> None:
+        """Write the payload through a temporary file, fsync and replace."""
         descriptor, temp_name = tempfile.mkstemp(
             dir=self.path.parent, prefix=f".{self.path.name}.tmp_"
         )
@@ -147,14 +179,6 @@ class StateStore:
                 handle.write("\n")
                 handle.flush()
                 os.fsync(handle.fileno())
-            if self.path.exists():
-                try:
-                    shutil.copy2(self.path, self.backup_path)
-                except OSError as exc:
-                    print(
-                        f"[WARN] Could not write backup {self.backup_path.name}: {exc}",
-                        file=sys.stderr,
-                    )
             self._replace(temp_path)
             self._fsync_directory(self.path.parent)
         finally:

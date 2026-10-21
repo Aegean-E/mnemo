@@ -57,6 +57,16 @@ class StoreFaultTests(unittest.TestCase):
         self.path.write_text("{broken", encoding="utf-8")
         self.assertEqual([card.id for card in self.store.read().cards], [1])
 
+    def test_recovery_restores_the_deck_file_in_place(self):
+        self._write(sample_state(1))
+        self._write(sample_state(1))
+        self.path.write_text("{broken", encoding="utf-8")
+        self.store.read()
+        self.assertTrue(self.path.exists())
+        self.assertEqual([card.id for card in self.store.read().cards], [1])
+        self.assertTrue(any(name.startswith(".corrupt_") for name in
+                            (entry.name for entry in self.temp_dir.iterdir())))
+
     def test_zero_byte_file_recovers_from_backup(self):
         self._write(sample_state(1))
         self._write(sample_state(1))

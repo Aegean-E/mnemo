@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `18`
 - **Total Classes**: `21`
-- **Total Top-Level Functions**: `31`
-- **Total Class Methods**: `132`
-- **Total Source Lines**: `1863`
+- **Total Top-Level Functions**: `32`
+- **Total Class Methods**: `139`
+- **Total Source Lines**: `1927`
 
 ---
 
@@ -33,7 +33,7 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: `add` and `list` over one deck file.*
 
-**Size**: `171` lines (`7074` bytes)
+**Size**: `184` lines (`7508` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
@@ -43,6 +43,7 @@
 - `def run_remove(deck, args)` - *Delete one card and echo what was removed.*
 - `def run_study(deck, args)` - *Run one guided session over the due cards, reading stdin line by line.*
 - `def run_stats(deck, args)` - *Print the deck's counts, retention and seven-day due forecast.*
+- `def _utf8_streams()` - *Print UTF-8 on any console; a stream that cannot reconfigure keeps its own encoding.*
 - `def main(argv)` - *Run one command; user errors print the Why/Fix triad and exit 1.*
 
 ---
@@ -137,7 +138,7 @@
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
-**Size**: `251` lines (`10703` bytes)
+**Size**: `275` lines (`11639` bytes)
 
 **Classes:**
 - `class DeckState` - *The whole deck file: every card and every logged review.*
@@ -146,10 +147,14 @@
   - Method `.read()` - *Every card and review; a missing deck is an empty one.*
   - Method `.update(mutate)` - *Apply `mutate` to the deck and persist its result under one held lock.*
   - Method `._load()` - *Parse the deck, recovering from a readable backup before giving up on it.*
-  - Method `._backup_or_empty(reason, quarantine)` - *Use the backup when it parses; otherwise quarantine the bad file and start empty.*
+  - Method `._backup_or_empty(reason, quarantine)` - *Use the backup when it parses, restoring it in place; else start empty.*
   - Method `._read_backup()` - *The parsed backup, or None when it is absent or unreadable.*
   - Method `._decode(data)` - *Validate the document envelope and rebuild every card and review.*
   - Method `._save(state)` - *Write the deck atomically, keeping the previous version as a backup.*
+  - Method `._restore(state)` - *Put recovered state back at the deck path so later commands see it.*
+  - Method `._payload(state)` - *The deck as the text one atomic write stores.*
+  - Method `._ensure_free_space()` - *Refuse a write that leaves too little room for the next recovery.*
+  - Method `._write_atomic(payload)` - *Write the payload through a temporary file, fsync and replace.*
   - Method `._replace(temp_path)` - *Replace the deck, retrying only transient sharing violations on Windows.*
   - Method `._fsync_directory(directory)` - *Flush the directory entry on POSIX; Windows cannot fsync a directory handle.*
   - Method `._quarantine()` - *Move a corrupt deck aside so it can neither block reads nor be overwritten.*
@@ -161,7 +166,7 @@
 ### [`mnemo/study.py`](mnemo/study.py)
 > *The study session engine: due queue, reveal, grade and summary, with injected I/O.*
 
-**Size**: `95` lines (`3543` bytes)
+**Size**: `96` lines (`3602` bytes)
 
 **Classes:**
 - `class SessionReport` - *What one study session did, as its summary line reports it.*
@@ -183,7 +188,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `212` lines (`8760` bytes)
+**Size**: `221` lines (`9196` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -210,6 +215,7 @@
   - Method `.test_list_filter_by_deck()`
   - Method `.test_study_filter_by_deck()`
   - Method `.test_stats_filter_by_deck()`
+  - Method `.test_non_ascii_cards_print_on_a_legacy_console()`
 
 ---
 
@@ -315,7 +321,7 @@
 ### [`tests/test_storage.py`](tests/test_storage.py)
 > *Fault-injection tests for the atomic deck store (PRINCIPLE-013).*
 
-**Size**: `133` lines (`5485` bytes)
+**Size**: `143` lines (`5975` bytes)
 
 **Classes:**
 - `class StoreFaultTests`
@@ -325,6 +331,7 @@
   - Method `.test_cards_and_reviews_round_trip()`
   - Method `.test_second_save_keeps_a_backup()`
   - Method `.test_malformed_json_recovers_from_backup()`
+  - Method `.test_recovery_restores_the_deck_file_in_place()`
   - Method `.test_zero_byte_file_recovers_from_backup()`
   - Method `.test_unknown_version_is_refused_in_place()`
   - Method `.test_insufficient_disk_space_writes_nothing()`
@@ -343,7 +350,7 @@
 ### [`tests/test_study.py`](tests/test_study.py)
 > *Tests of the study session engine over scripted input and captured output.*
 
-**Size**: `123` lines (`5190` bytes)
+**Size**: `130` lines (`5558` bytes)
 
 **Classes:**
 - `class ScriptedInput` - *A read_line double that replays lines and reports EOF as None.*
@@ -362,6 +369,7 @@
   - Method `.test_quit_mid_session_keeps_finished_reviews()`
   - Method `.test_invalid_grade_reprompts_until_valid()`
   - Method `.test_limit_caps_the_session()`
+  - Method `.test_one_remaining_card_is_singular()`
   - Method `.test_summary_names_the_next_due_day()`
   - Method `.test_session_without_due_cards_says_so()`
   - Method `.test_session_honors_the_deck_filter()`
