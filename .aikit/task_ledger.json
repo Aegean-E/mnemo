@@ -3,9 +3,10 @@
   "active_task": {
     "task_id": "mnemo-sm2-v1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
-    "updated_at": 1792621277.5870814
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1792621277.5870814,
+    "completed_at": 1792621304.751828
   },
   "checkpoints": [
     {
@@ -83,6 +84,15 @@
       "status": "in_progress",
       "timestamp": 1792621277.5870814,
       "timestamp_str": "2026-10-22 01:21:17"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'mnemo-sm2-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1792621304.7518294,
+      "timestamp_str": "2026-10-22 01:21:44"
     }
   ]
 }
