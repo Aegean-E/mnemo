@@ -73,6 +73,45 @@ class DeckTests(unittest.TestCase):
         with self.assertRaises(MnemoError):
             self.deck.record_review(9, 4, "2026-10-21")
 
+    def test_edit_card_changes_only_the_given_fields(self):
+        self.deck.add_card("front", "back", "default", "2026-10-21")
+        self.deck.record_review(1, 4, "2026-10-21")
+        updated = self.deck.edit_card(1, back="new back")
+        self.assertEqual(updated.back, "new back")
+        self.assertEqual(updated.front, "front")
+        self.assertEqual(updated.deck, "default")
+        self.assertEqual(updated.due, "2026-10-22")
+        self.assertEqual(updated.ease, self.deck.find(1).ease)
+
+    def test_edit_card_missing_raises(self):
+        with self.assertRaises(MnemoError):
+            self.deck.edit_card(9, back="new back")
+
+    def test_remove_card_returns_it_and_frees_the_id(self):
+        self.deck.add_card("front 1", "back", "default", "2026-10-21")
+        self.deck.add_card("front 2", "back", "default", "2026-10-21")
+        removed = self.deck.remove_card(2)
+        self.assertEqual(removed.front, "front 2")
+        self.assertEqual([card.id for card in self.deck.entries()], [1])
+        rewritten = self.deck.add_card("front 3", "back", "default", "2026-10-21")
+        self.assertEqual(rewritten.id, 2)
+
+    def test_remove_card_missing_raises(self):
+        with self.assertRaises(MnemoError):
+            self.deck.remove_card(9)
+
+    def test_entries_filter_by_deck(self):
+        self.deck.add_card("alpha", "back", "alpha", "2026-10-21")
+        self.deck.add_card("beta", "back", "beta", "2026-10-21")
+        self.assertEqual([card.front for card in self.deck.entries(deck_name="alpha")], ["alpha"])
+        self.assertEqual(len(self.deck.entries()), 2)
+
+    def test_due_cards_filter_by_deck(self):
+        self.deck.add_card("alpha", "back", "alpha", "2026-10-21")
+        self.deck.add_card("beta", "back", "beta", "2026-10-21")
+        due = self.deck.due_cards("2026-10-21", deck_name="beta")
+        self.assertEqual([card.front for card in due], ["beta"])
+
 
 if __name__ == "__main__":
     unittest.main()

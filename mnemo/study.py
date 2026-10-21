@@ -64,9 +64,10 @@ def _summarize(deck: Deck, today: str, reviewed: int, passed: int, lapsed: int,
 
 def run_session(deck: Deck, today: str, limit: int,
                 read_line: Callable[[], Optional[str]],
-                write_line: Callable[[str], None]) -> SessionReport:
+                write_line: Callable[[str], None],
+                deck_name: Optional[str] = None) -> SessionReport:
     """Run one bounded session over the due cards; q and end-of-input quit gracefully."""
-    queue = deck.due_cards(today)[:limit]
+    queue = deck.due_cards(today, deck_name)[:limit]
     if not queue:
         _announce_empty(deck, write_line)
         return SessionReport(reviewed=0, passed=0, lapsed=0, quit_early=False)

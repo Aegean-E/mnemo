@@ -137,6 +137,76 @@ class CliTests(unittest.TestCase):
         self.assertIn("retention: 100%", output)
         self.assertIn("reviews logged: 1", output)
 
+    def test_edit_updates_the_given_fields(self):
+        self.run_cli("add", "old front", "--back", "old back")
+        code, output, _ = self.run_cli("edit", "1", "--back", "new back",
+                                       "--deck", "Japanese")
+        self.assertEqual(code, 0)
+        self.assertIn("Updated #1", output)
+        self.assertIn("new back", output)
+        code, output, _ = self.run_cli("list")
+        self.assertEqual(code, 0)
+        self.assertIn("new back", output)
+        self.assertIn("[japanese]", output)
+        self.assertIn("old front", output)
+
+    def test_edit_without_fields_fails_with_the_triad(self):
+        self.run_cli("add", "front", "--back", "back")
+        code, _, stderr = self.run_cli("edit", "1")
+        self.assertEqual(code, 1)
+        self.assertIn("Error:", stderr)
+        self.assertIn("Fix:", stderr)
+
+    def test_edit_missing_card_fails(self):
+        self.run_cli("add", "front", "--back", "back")
+        code, _, stderr = self.run_cli("edit", "9", "--back", "new")
+        self.assertEqual(code, 1)
+        self.assertIn("There is no card #9", stderr)
+
+    def test_remove_deletes_the_card(self):
+        self.run_cli("add", "keep", "--back", "1")
+        self.run_cli("add", "gone", "--back", "2")
+        code, output, _ = self.run_cli("remove", "2")
+        self.assertEqual(code, 0)
+        self.assertIn("Removed #2", output)
+        code, output, _ = self.run_cli("list")
+        self.assertEqual(code, 0)
+        self.assertNotIn("gone", output)
+        self.assertIn("keep", output)
+
+    def test_remove_missing_card_fails(self):
+        code, _, stderr = self.run_cli("remove", "1")
+        self.assertEqual(code, 1)
+        self.assertIn("There is no card #1", stderr)
+
+    def test_list_filter_by_deck(self):
+        self.run_cli("add", "kana", "--back", "あ", "--deck", "japanese")
+        self.run_cli("add", "der die das", "--back", "the", "--deck", "german")
+        code, output, _ = self.run_cli("list", "--deck", "japanese")
+        self.assertEqual(code, 0)
+        self.assertIn("kana", output)
+        self.assertNotIn("der die das", output)
+
+    def test_study_filter_by_deck(self):
+        from unittest import mock
+        self.run_cli("add", "alpha front", "--back", "a", "--deck", "alpha")
+        self.run_cli("add", "beta front", "--back", "b", "--deck", "beta")
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch("builtins.input", side_effect=["", "4"]):
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = main(["--db", self.db, "study", "--deck", "alpha"])
+        self.assertEqual(code, 0)
+        output = stdout.getvalue()
+        self.assertIn("alpha front", output)
+        self.assertNotIn("beta front", output)
+
+    def test_stats_filter_by_deck(self):
+        self.run_cli("add", "kana", "--back", "あ", "--deck", "japanese")
+        self.run_cli("add", "der die das", "--back", "the", "--deck", "german")
+        code, output, _ = self.run_cli("stats", "--deck", "japanese")
+        self.assertEqual(code, 0)
+        self.assertIn("cards: 1", output)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `18`
 - **Total Classes**: `21`
-- **Total Top-Level Functions**: `28`
-- **Total Class Methods**: `115`
-- **Total Source Lines**: `1639`
+- **Total Top-Level Functions**: `31`
+- **Total Class Methods**: `132`
+- **Total Source Lines**: `1863`
 
 ---
 
@@ -33,12 +33,14 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: `add` and `list` over one deck file.*
 
-**Size**: `124` lines (`4725` bytes)
+**Size**: `171` lines (`7074` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
 - `def run_add(deck, args)` - *Validate the arguments, record the card and echo it.*
 - `def run_list(deck, args)` - *Print one line per card, or say the deck is empty.*
+- `def run_edit(deck, args)` - *Apply the given fields and echo the updated card.*
+- `def run_remove(deck, args)` - *Delete one card and echo what was removed.*
 - `def run_study(deck, args)` - *Run one guided session over the due cards, reading stdin line by line.*
 - `def run_stats(deck, args)` - *Print the deck's counts, retention and seven-day due forecast.*
 - `def main(argv)` - *Run one command; user errors print the Why/Fix triad and exit 1.*
@@ -46,19 +48,24 @@
 ---
 
 ### [`mnemo/deck.py`](mnemo/deck.py)
-> *Deck operations: adding, finding, listing, due selection and review recording.*
+> *Deck operations: adding, editing, removing, listing and reviewing cards.*
 
-**Size**: `84` lines (`3310` bytes)
+**Size**: `140` lines (`5853` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
   - Method `.__init__(store)`
   - Method `.add_card(front, back, deck, today)` - *Record a new card, due today, and return it with its assigned id.*
   - Method `.snapshot()` - *Every card and every logged review, in one read.*
-  - Method `.entries()` - *Every card, sorted by id.*
-  - Method `.due_cards(today)` - *Every card due on `today` or earlier, earliest due first.*
+  - Method `.entries(deck_name)` - *Every card of the named deck, sorted by id.*
+  - Method `.due_cards(today, deck_name)` - *Every card due on `today` or earlier, earliest due first.*
   - Method `.find(card_id)` - *One card by id, or the Why/Fix triad when it is absent.*
   - Method `.record_review(card_id, quality, today)` - *Grade one answer: persist the card's next SM-2 state and append the log entry.*
+  - Method `.edit_card(card_id, front, back, deck)` - *Change the given fields of one card, keeping every other field, and persist it.*
+  - Method `.remove_card(card_id)` - *Delete one card, log untouched, and return what was removed.*
+
+**Functions:**
+- `def select_deck(cards, deck_name)` - *Only the cards of one deck, or every card when no deck is named.*
 
 ---
 
@@ -154,7 +161,7 @@
 ### [`mnemo/study.py`](mnemo/study.py)
 > *The study session engine: due queue, reveal, grade and summary, with injected I/O.*
 
-**Size**: `94` lines (`3483` bytes)
+**Size**: `95` lines (`3543` bytes)
 
 **Classes:**
 - `class SessionReport` - *What one study session did, as its summary line reports it.*
@@ -164,7 +171,7 @@
 - `def _ask_grade(read_line, write_line)` - *Read grades until one is valid; None when the reader quits or ends.*
 - `def _announce_empty(deck, write_line)` - *Say why no session can run: an empty deck or nothing due.*
 - `def _summarize(deck, today, reviewed, passed, lapsed, write_line)` - *Close the session with its counts and what the deck waits for now.*
-- `def run_session(deck, today, limit, read_line, write_line)` - *Run one bounded session over the due cards; q and end-of-input quit gracefully.*
+- `def run_session(deck, today, limit, read_line, write_line, deck_name)` - *Run one bounded session over the due cards; q and end-of-input quit gracefully.*
 
 ---
 
@@ -176,7 +183,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `142` lines (`5638` bytes)
+**Size**: `212` lines (`8760` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -195,13 +202,21 @@
   - Method `.test_study_rejects_a_non_positive_limit()`
   - Method `.test_stats_renders_the_deck_summary()`
   - Method `.test_stats_after_a_session_reports_full_retention()`
+  - Method `.test_edit_updates_the_given_fields()`
+  - Method `.test_edit_without_fields_fails_with_the_triad()`
+  - Method `.test_edit_missing_card_fails()`
+  - Method `.test_remove_deletes_the_card()`
+  - Method `.test_remove_missing_card_fails()`
+  - Method `.test_list_filter_by_deck()`
+  - Method `.test_study_filter_by_deck()`
+  - Method `.test_stats_filter_by_deck()`
 
 ---
 
 ### [`tests/test_deck.py`](tests/test_deck.py)
 > *Tests of deck operations over the atomic store.*
 
-**Size**: `78` lines (`3213` bytes)
+**Size**: `117` lines (`5122` bytes)
 
 **Classes:**
 - `class DeckTests`
@@ -215,6 +230,12 @@
   - Method `.test_due_cards_return_only_today_and_earlier()`
   - Method `.test_record_review_updates_card_and_log()`
   - Method `.test_record_review_missing_card_raises()`
+  - Method `.test_edit_card_changes_only_the_given_fields()`
+  - Method `.test_edit_card_missing_raises()`
+  - Method `.test_remove_card_returns_it_and_frees_the_id()`
+  - Method `.test_remove_card_missing_raises()`
+  - Method `.test_entries_filter_by_deck()`
+  - Method `.test_due_cards_filter_by_deck()`
 
 ---
 
@@ -322,7 +343,7 @@
 ### [`tests/test_study.py`](tests/test_study.py)
 > *Tests of the study session engine over scripted input and captured output.*
 
-**Size**: `112` lines (`4615` bytes)
+**Size**: `123` lines (`5190` bytes)
 
 **Classes:**
 - `class ScriptedInput` - *A read_line double that replays lines and reports EOF as None.*
@@ -343,5 +364,6 @@
   - Method `.test_limit_caps_the_session()`
   - Method `.test_summary_names_the_next_due_day()`
   - Method `.test_session_without_due_cards_says_so()`
+  - Method `.test_session_honors_the_deck_filter()`
 
 ---

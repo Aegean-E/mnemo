@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1792615119.876107
+    "updated_at": 1792615750.9466693
   },
   "checkpoints": [
     {
@@ -63,6 +63,16 @@
       "status": "in_progress",
       "timestamp": 1792615119.876107,
       "timestamp_str": "2026-10-21 23:38:39"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[5/6] Card management complete: partial edit_card keeping scheduling state, remove_card freeing the id, --deck filter on list/study/stats with deck-scoped retention; 90 tests green (failing-first: 15 errors before implementation); fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792615750.9466693,
+      "timestamp_str": "2026-10-21 23:49:10"
     }
   ]
 }

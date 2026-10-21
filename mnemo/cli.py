@@ -6,9 +6,9 @@ from datetime import date
 from pathlib import Path
 from typing import Optional, Sequence
 
-from mnemo.deck import Deck
+from mnemo.deck import Deck, select_deck
 from mnemo.errors import MnemoError
-from mnemo.models import normalize_deck, parse_back, parse_front
+from mnemo.models import normalize_deck, parse_back, parse_card_id, parse_front
 from mnemo.scheduler import is_due, maturity
 from mnemo.stats import summarize
 from mnemo.storage import StateStore
@@ -38,12 +38,24 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = commands.add_parser("list", help="list cards, oldest first")
     listing.add_argument("--due", action="store_true", help="only cards due today")
+    listing.add_argument("--deck", "-d", default=None, help="only this deck")
 
     study = commands.add_parser("study", help="review due cards in a guided session")
     study.add_argument("--limit", "-l", type=int, default=DEFAULT_SESSION_LIMIT,
                        help=f"cards to review at most (default: {DEFAULT_SESSION_LIMIT})")
+    study.add_argument("--deck", "-d", default=None, help="only this deck")
 
-    commands.add_parser("stats", help="deck counts, retention and a 7-day due forecast")
+    stats = commands.add_parser("stats", help="deck counts, retention and a 7-day due forecast")
+    stats.add_argument("--deck", "-d", default=None, help="only this deck")
+
+    edit = commands.add_parser("edit", help="change fields of an existing card")
+    edit.add_argument("card_id", help="id shown by list")
+    edit.add_argument("--front", "-f", default=None, help="new front text")
+    edit.add_argument("--back", "-b", default=None, help="new back text")
+    edit.add_argument("--deck", "-d", default=None, help="new deck label")
+
+    remove = commands.add_parser("remove", help="delete a card by id")
+    remove.add_argument("card_id", help="id shown by list")
     return parser
 
 
@@ -60,7 +72,8 @@ def run_add(deck: Deck, args: argparse.Namespace) -> None:
 
 def run_list(deck: Deck, args: argparse.Namespace) -> None:
     """Print one line per card, or say the deck is empty."""
-    cards = deck.entries()
+    deck_name = normalize_deck(args.deck) if args.deck else None
+    cards = deck.entries(deck_name)
     if args.due:
         today = date.today().isoformat()
         cards = [card for card in cards if is_due(card, today)]
@@ -72,6 +85,29 @@ def run_list(deck: Deck, args: argparse.Namespace) -> None:
     for card in cards:
         print(f"#{card.id:<3} due {card.due}  {maturity(card):<7}  "
               f"[{card.deck}]  {card.front}  ->  {card.back}")
+
+
+def run_edit(deck: Deck, args: argparse.Namespace) -> None:
+    """Apply the given fields and echo the updated card."""
+    if args.front is None and args.back is None and args.deck is None:
+        raise MnemoError(
+            "Nothing to change.",
+            "`edit` changes only the fields you name, and no field was named.",
+            "pass at least one of --front, --back or --deck.",
+        )
+    card = deck.edit_card(
+        parse_card_id(args.card_id),
+        front=parse_front(args.front) if args.front is not None else None,
+        back=parse_back(args.back) if args.back is not None else None,
+        deck=normalize_deck(args.deck) if args.deck is not None else None,
+    )
+    print(f"Updated #{card.id}: {card.front}  ->  {card.back}  [{card.deck}]")
+
+
+def run_remove(deck: Deck, args: argparse.Namespace) -> None:
+    """Delete one card and echo what was removed."""
+    card = deck.remove_card(parse_card_id(args.card_id))
+    print(f"Removed #{card.id}: {card.front}  ->  {card.back}  [{card.deck}]")
 
 
 def run_study(deck: Deck, args: argparse.Namespace) -> None:
@@ -89,13 +125,20 @@ def run_study(deck: Deck, args: argparse.Namespace) -> None:
         except EOFError:
             return None
 
-    run_session(deck, date.today().isoformat(), args.limit, read_line, print)
+    run_session(deck, date.today().isoformat(), args.limit, read_line, print,
+                deck_name=normalize_deck(args.deck) if args.deck else None)
 
 
 def run_stats(deck: Deck, args: argparse.Namespace) -> None:
     """Print the deck's counts, retention and seven-day due forecast."""
+    deck_name = normalize_deck(args.deck) if args.deck else None
     state = deck.snapshot()
-    stats = summarize(state.cards, state.reviews, date.today().isoformat())
+    cards = select_deck(state.cards, deck_name)
+    reviews = state.reviews if deck_name is None else [
+        review for review in state.reviews
+        if review.card_id in {card.id for card in cards}
+    ]
+    stats = summarize(cards, reviews, date.today().isoformat())
     retention = "n/a (no reviews yet)" if stats.retention is None else f"{stats.retention:.0%}"
     print(f"cards: {stats.total}  ({stats.due_today} due today)")
     print(f"new: {stats.new_cards}  learning: {stats.learning}  mature: {stats.mature}")
@@ -116,6 +159,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             run_study(deck, args)
         elif args.command == "stats":
             run_stats(deck, args)
+        elif args.command == "edit":
+            run_edit(deck, args)
+        elif args.command == "remove":
+            run_remove(deck, args)
         else:
             run_list(deck, args)
     except MnemoError as error:

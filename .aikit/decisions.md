@@ -79,4 +79,21 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   neglected deck shows its backlog in one number. Retention over the whole log moves slowly;
   windowed retention is deliberately not invented here.
 
+### ADR-005: Edits are partial, removals free the id, and the review log is append-only
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Context**: Cards are living objects: typos must be fixable and finished material deletable,
+  but the scheduling state a card earned must survive a text fix, and the statistics must not
+  quietly rewrite history when a card goes away.
+- **Decision**: `edit` changes only the fields named on the command line (front, back, deck) and
+  requires at least one; every scheduling field (ease, interval, repetitions, lapses, due)
+  survives untouched. `remove` deletes the card and returns it; a new card takes one past the
+  highest remaining id, so removing the newest card frees its id. The review log is never
+  rewritten by `edit` or `remove`; `stats --deck` counts only the reviews of cards still in that
+  deck, while the unfiltered `stats` keeps every logged review.
+- **Consequences**: Fixing a typo cannot damage a schedule, and ids stay small and stable for
+  the cards that remain. Removing a card leaves orphan log entries, so whole-log retention
+  remembers answers of cards no longer in the deck; that is the honest history, and bounding the
+  log remains the open cost noted in ADR-001.
+
 

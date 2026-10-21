@@ -55,15 +55,20 @@ machine.
 - **Stats read the log, not guesses.** `stats` reports counts by maturity (new, learning,
   mature), how many cards are due today, retention as the share of logged grades at or above 3,
   and how many cards fall due on each of the next seven days.
+- **Decks partition the file, not the machine.** `--deck` narrows `list`, `study` and `stats` to
+  one label; `edit` can move a card between decks. The review log is append-only, so removing a
+  card keeps its history in the retention numbers.
 - **Clear failures.** Every user error prints `Error:`, `Why:` and `Fix:`, and exits 1.
 
 ### Commands
 
 ```text
 python -m mnemo [--db PATH] add FRONT --back TEXT [--deck NAME]
-python -m mnemo [--db PATH] list [--due]
-python -m mnemo [--db PATH] study [--limit N]
-python -m mnemo [--db PATH] stats
+python -m mnemo [--db PATH] list [--due] [--deck NAME]
+python -m mnemo [--db PATH] study [--limit N] [--deck NAME]
+python -m mnemo [--db PATH] stats [--deck NAME]
+python -m mnemo [--db PATH] edit ID [--front TEXT] [--back TEXT] [--deck NAME]
+python -m mnemo [--db PATH] remove ID
 ```
 
 ## 📦 What's Inside
