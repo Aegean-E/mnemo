@@ -69,6 +69,24 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertTrue(Path(nested).is_file())
 
+    def test_list_shows_maturity(self):
+        self.run_cli("add", "fresh", "--back", "card")
+        code, output, _ = self.run_cli("list")
+        self.assertEqual(code, 0)
+        self.assertIn(" new ", output)
+
+    def test_list_due_hides_cards_scheduled_for_later(self):
+        self.run_cli("add", "front", "--back", "back")
+        deck_json = self.temp_dir / "mnemo.json"
+        import json
+        document = json.loads(deck_json.read_text(encoding="utf-8"))
+        document["cards"][0]["due"] = "2099-01-01"
+        deck_json.write_text(json.dumps(document), encoding="utf-8")
+        code, output, _ = self.run_cli("list", "--due")
+        self.assertEqual(code, 0)
+        self.assertNotIn("front", output)
+        self.assertIn("No cards due", output)
+
 
 if __name__ == "__main__":
     unittest.main()

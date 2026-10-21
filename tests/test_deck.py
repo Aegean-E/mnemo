@@ -7,7 +7,7 @@ from pathlib import Path
 
 from mnemo.deck import Deck
 from mnemo.errors import MnemoError
-from mnemo.storage import StateStore
+from mnemo.storage import DeckState, StateStore
 
 
 class DeckTests(unittest.TestCase):
@@ -48,6 +48,18 @@ class DeckTests(unittest.TestCase):
         self.deck.add_card("front", "back", "default", "2026-10-21")
         reopened = Deck(StateStore(self.path))
         self.assertEqual([card.front for card in reopened.entries()], ["front"])
+
+    def test_due_cards_return_only_today_and_earlier(self):
+        self.deck.add_card("later", "back", "default", "2026-10-21")
+        self.deck.add_card("now", "back", "default", "2026-10-21")
+        from dataclasses import replace
+        StateStore(self.path).update(
+            lambda state: DeckState(
+                cards=[replace(state.cards[0], due="2026-10-25"), state.cards[1]],
+                reviews=[])
+        )
+        due = self.deck.due_cards("2026-10-21")
+        self.assertEqual([card.front for card in due], ["now"])
 
 
 if __name__ == "__main__":

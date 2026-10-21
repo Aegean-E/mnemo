@@ -34,6 +34,10 @@ machine.
   "reviews": [...]}`: every card with its full SM-2 state, and a log of graded answers.
 - **Cards are due the day they are added.** A new card starts at ease 2.5 with no interval, so
   `study` can pick it up immediately.
+- **Scheduling is the published SM-2, unchanged.** Each answer is graded 0-5 (or
+  again/hard/good/easy); the ease factor moves by the published formula, floored at 1.3, the
+  interval grows 1, 6, then interval x ease, and a grade below 3 resets the streak to a 1-day
+  interval. Every date is injected, so the schedule is deterministic and replayable.
 - **Stable ids.** `list` shows each id, and later commands address cards by it. A new id is one
   past the highest remaining id, so removing the newest card frees that id for the next one.
 - **Crash-safe writes.** Each save keeps a `.bak`, writes a temporary file, fsyncs it, then
@@ -48,7 +52,7 @@ machine.
 
 ```text
 python -m mnemo [--db PATH] add FRONT --back TEXT [--deck NAME]
-python -m mnemo [--db PATH] list
+python -m mnemo [--db PATH] list [--due]
 ```
 
 ## 📦 What's Inside
@@ -67,12 +71,14 @@ mnemo/
 │   ├── deck.py               <- add, find and list operations
 │   ├── errors.py             <- the Error/Why/Fix triad
 │   ├── models.py             <- Card and Review value objects and parsing rules
+│   ├── scheduler.py          <- the SM-2 functions: grade, next state, due, maturity
 │   └── storage.py            <- atomic JSON store, backup, lock and recovery
 └── tests/
     ├── __init__.py
     ├── test_cli.py
     ├── test_deck.py
     ├── test_models.py
+    ├── test_scheduler.py
     └── test_storage.py
 ```
 

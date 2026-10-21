@@ -25,3 +25,21 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   review log grows without bound, so a later decision will have to bound it if decks run for
   years.
 
+### ADR-002: The published SM-2 algorithm, date-injected and unmodified
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Context**: Scheduling is the heart of the tool, and every variant of SM-2 that "improves" it
+  invents parameters nobody can verify. The tests must also pin exact dates without waiting for
+  calendar time to pass.
+- **Decision**: Implement the SM-2 algorithm exactly as published: grades 0-5, ease updated by
+  `EF' = EF + (0.1 - q*(0.08 + q*0.02))` on every answer and floored at 1.3, intervals 1, 6,
+  then `round(interval * EF')`, and any grade below 3 resets repetitions and sets a 1-day
+  interval while counting a lapse. The words again=1, hard=3, good=4, easy=5 also grade an
+  answer. Every function takes the current day as an explicit argument; no function reads the
+  clock. Maturity labels: new (never answered), learning (interval under 21 days), mature.
+- **Consequences**: The schedule is byte-for-byte reproducible from the deck file and unit tests
+  pin exact due dates. Fidelity keeps the published formula's known quirk that a grade of 0
+  raises the ease by 0.1; it is floored but otherwise left alone, and a test pins it so the
+  behaviour is a decision, not a bug. Cards graded 4 every time grind their ease down to the
+  1.3 floor, exactly as the published algorithm does.
+

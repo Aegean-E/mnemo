@@ -1,9 +1,10 @@
-"""Deck operations: adding, finding and listing cards over the atomic store."""
+"""Deck operations: adding, finding, listing and selecting due cards."""
 
 from typing import List
 
 from mnemo.errors import MnemoError
 from mnemo.models import Card, EASE_DEFAULT, parse_iso_date
+from mnemo.scheduler import is_due
 from mnemo.storage import DeckState, StateStore
 
 
@@ -37,6 +38,11 @@ class Deck:
     def entries(self) -> List[Card]:
         """Every card, sorted by id."""
         return sorted(self.store.read().cards, key=lambda card: card.id)
+
+    def due_cards(self, today: str) -> List[Card]:
+        """Every card due on `today` or earlier, earliest due first."""
+        due = [card for card in self.store.read().cards if is_due(card, today)]
+        return sorted(due, key=lambda card: (card.due, card.id))
 
     def find(self, card_id: int) -> Card:
         """One card by id, or the Why/Fix triad when it is absent."""

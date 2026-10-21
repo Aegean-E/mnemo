@@ -6,11 +6,11 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `12`
-- **Total Classes**: `12`
-- **Total Top-Level Functions**: `13`
-- **Total Class Methods**: `69`
-- **Total Source Lines**: `975`
+- **Total Python Modules**: `14`
+- **Total Classes**: `15`
+- **Total Top-Level Functions**: `19`
+- **Total Class Methods**: `86`
+- **Total Source Lines**: `1191`
 
 ---
 
@@ -33,7 +33,7 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: `add` and `list` over one deck file.*
 
-**Size**: `72` lines (`2496` bytes)
+**Size**: `80` lines (`2865` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
@@ -44,15 +44,16 @@
 ---
 
 ### [`mnemo/deck.py`](mnemo/deck.py)
-> *Deck operations: adding, finding and listing cards over the atomic store.*
+> *Deck operations: adding, finding, listing and selecting due cards.*
 
-**Size**: `50` lines (`1756` bytes)
+**Size**: `56` lines (`2053` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
   - Method `.__init__(store)`
   - Method `.add_card(front, back, deck, today)` - *Record a new card, due today, and return it with its assigned id.*
   - Method `.entries()` - *Every card, sorted by id.*
+  - Method `.due_cards(today)` - *Every card due on `today` or earlier, earliest due first.*
   - Method `.find(card_id)` - *One card by id, or the Why/Fix triad when it is absent.*
 
 ---
@@ -95,6 +96,20 @@
 
 ---
 
+### [`mnemo/scheduler.py`](mnemo/scheduler.py)
+> *The SM-2 scheduling functions: pure, date-injected, exactly the published algorithm.*
+
+**Size**: `68` lines (`2695` bytes)
+
+**Functions:**
+- `def grade_from_text(text)` - *A grade from one digit 0-5, or from the words again, hard, good and easy.*
+- `def _ease_after(ease, quality)` - *The published SM-2 ease update, never dropping below the floor.*
+- `def next_state(card, quality, today)` - *The card exactly as the published SM-2 leaves it after one graded answer.*
+- `def is_due(card, today)` - *Whether the card's due day is `today` or has already passed.*
+- `def maturity(card)` - *The card's stage: new, learning, or mature at 21 days of interval.*
+
+---
+
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
@@ -127,7 +142,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `74` lines (`2728` bytes)
+**Size**: `92` lines (`3497` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -139,13 +154,15 @@
   - Method `.test_add_increments_ids()`
   - Method `.test_add_labels_the_deck()`
   - Method `.test_nested_db_path_is_created()`
+  - Method `.test_list_shows_maturity()`
+  - Method `.test_list_due_hides_cards_scheduled_for_later()`
 
 ---
 
 ### [`tests/test_deck.py`](tests/test_deck.py)
 > *Tests of deck operations over the atomic store.*
 
-**Size**: `54` lines (`2087` bytes)
+**Size**: `66` lines (`2643` bytes)
 
 **Classes:**
 - `class DeckTests`
@@ -156,6 +173,7 @@
   - Method `.test_find_returns_the_card()`
   - Method `.test_find_missing_card_raises_the_triad()`
   - Method `.test_state_persists_across_instances()`
+  - Method `.test_due_cards_return_only_today_and_earlier()`
 
 ---
 
@@ -183,6 +201,34 @@
 - `class ReviewTests`
   - Method `.test_review_round_trips_through_dicts()`
   - Method `.test_review_rejects_out_of_range_quality()`
+
+---
+
+### [`tests/test_scheduler.py`](tests/test_scheduler.py)
+> *Tests of the SM-2 scheduling functions, pinned to exact dates and values.*
+
+**Size**: `104` lines (`4562` bytes)
+
+**Classes:**
+- `class GradeParsingTests`
+  - Method `.test_grade_from_text_accepts_digits()`
+  - Method `.test_grade_from_text_accepts_words_case_insensitively()`
+  - Method `.test_grade_from_text_rejects_other_answers()`
+- `class NextStateTests`
+  - Method `.test_first_successful_review()`
+  - Method `.test_second_successful_review_uses_six_days()`
+  - Method `.test_third_review_multiplies_interval_by_updated_ease()`
+  - Method `.test_failed_review_resets_the_streak()`
+  - Method `.test_zero_grade_keeps_the_published_formula()`
+  - Method `.test_ease_never_drops_below_the_floor()`
+  - Method `.test_out_of_range_quality_is_refused()`
+  - Method `.test_identity_fields_survive_and_input_is_untouched()`
+- `class DueAndMaturityTests`
+  - Method `.test_is_due_compares_iso_dates()`
+  - Method `.test_maturity_splits_new_learning_and_mature()`
+
+**Functions:**
+- `def make_card(**overrides)`
 
 ---
 

@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1792612952.35287
+    "updated_at": 1792613895.7127702
   },
   "checkpoints": [
     {
@@ -33,6 +33,16 @@
       "status": "in_progress",
       "timestamp": 1792612952.35287,
       "timestamp_str": "2026-10-21 23:02:32"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/6] SM-2 scheduler complete: published formula with ease floor, lapse reset, grade words, injected dates; due_cards and list --due with maturity column; 55 tests green (failing-first: 3 errors 1 failure before implementation); fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792613895.7127702,
+      "timestamp_str": "2026-10-21 23:18:15"
     }
   ]
 }
