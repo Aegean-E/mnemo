@@ -61,6 +61,18 @@ class DeckTests(unittest.TestCase):
         due = self.deck.due_cards("2026-10-21")
         self.assertEqual([card.front for card in due], ["now"])
 
+    def test_record_review_updates_card_and_log(self):
+        self.deck.add_card("front", "back", "default", "2026-10-21")
+        updated = self.deck.record_review(1, 4, "2026-10-21")
+        self.assertEqual(updated.repetitions, 1)
+        self.assertEqual(updated.due, "2026-10-22")
+        self.assertEqual(self.deck.find(1).due, "2026-10-22")
+        self.assertEqual(len(self.deck.store.read().reviews), 1)
+
+    def test_record_review_missing_card_raises(self):
+        with self.assertRaises(MnemoError):
+            self.deck.record_review(9, 4, "2026-10-21")
+
 
 if __name__ == "__main__":
     unittest.main()

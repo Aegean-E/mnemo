@@ -1,10 +1,10 @@
-"""Deck operations: adding, finding, listing and selecting due cards."""
+"""Deck operations: adding, finding, listing, due selection and review recording."""
 
 from typing import List
 
 from mnemo.errors import MnemoError
-from mnemo.models import Card, EASE_DEFAULT, parse_iso_date
-from mnemo.scheduler import is_due
+from mnemo.models import Card, EASE_DEFAULT, Review, parse_iso_date
+from mnemo.scheduler import is_due, next_state
 from mnemo.storage import DeckState, StateStore
 
 
@@ -54,3 +54,27 @@ class Deck:
             "commands that address one card need an id the deck actually holds.",
             "run `mnemo list`, then pass one of the ids it prints.",
         )
+
+    def record_review(self, card_id: int, quality: int, today: str) -> Card:
+        """Grade one answer: persist the card's next SM-2 state and append the log entry."""
+        parse_iso_date(today, "today")
+        updated: List[Card] = []
+
+        def mutate(state: DeckState) -> DeckState:
+            target = next((card for card in state.cards if card.id == card_id), None)
+            if target is None:
+                raise MnemoError(
+                    f"There is no card #{card_id}.",
+                    "a review is recorded against a card the deck actually holds.",
+                    "run `mnemo list`, then grade one of the ids it prints.",
+                )
+            card = next_state(target, quality, today)
+            updated.append(card)
+            reviews = state.reviews + [Review(card_id=card_id, date=today, quality=quality)]
+            return DeckState(
+                cards=[card if existing.id == card_id else existing for existing in state.cards],
+                reviews=reviews,
+            )
+
+        self.store.update(mutate)
+        return updated[0]

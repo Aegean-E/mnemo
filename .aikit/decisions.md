@@ -41,5 +41,25 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   pin exact due dates. Fidelity keeps the published formula's known quirk that a grade of 0
   raises the ease by 0.1; it is floored but otherwise left alone, and a test pins it so the
   behaviour is a decision, not a bug. Cards graded 4 every time grind their ease down to the
-  1.3 floor, exactly as the published algorithm does.
+  1.3   floor, exactly as the published algorithm does.
+
+### ADR-003: Study sessions are line-driven with injected input and output
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Context**: A study session is the one interactive surface of the tool, and it must behave
+  identically for a person at a terminal, for a pipe, and under test. Interrupting a session
+  must never lose the answers already graded, and the engine must not touch `sys.stdin` or
+  `print` itself to stay testable without subprocesses.
+- **Decision**: The session engine takes `read_line` and `write_line` callables and the current
+  day as arguments. A line is either `q` (quit) or end-of-input (quit) or an answer; an invalid
+  grade is re-asked with a hint, never fatal. Each graded answer is committed in one locked
+  read-modify-write that stores the card's next SM-2 state and appends the review log entry.
+  Sessions are bounded by `--limit` (default 20) and end with a summary of counts and the next
+  due day. The CLI wires `input` (EOF becomes end-of-input) and `print`, so terminal and pipe
+  run the same flow.
+- **Consequences**: Sessions are unit-testable with scripted line lists and captured output, and
+  a piped script (answer-per-line) drives a full session for dogfooding. A quit mid-session
+  leaves finished reviews committed and the rest of the queue due today. Very long piped input
+  cannot loop forever: end-of-input ends the session at the next read.
+
 

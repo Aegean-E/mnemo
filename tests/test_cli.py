@@ -87,6 +87,34 @@ class CliTests(unittest.TestCase):
         self.assertNotIn("front", output)
         self.assertIn("No cards due", output)
 
+    def test_study_runs_a_scripted_session(self):
+        from unittest import mock
+        self.run_cli("add", "What is SM-2?", "--back", "a scheduling algorithm")
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch("builtins.input", side_effect=["", "4"]):
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = main(["--db", self.db, "study"])
+        self.assertEqual(code, 0)
+        output = stdout.getvalue()
+        self.assertIn("What is SM-2?", output)
+        self.assertIn("a scheduling algorithm", output)
+        self.assertIn("1 reviewed", output)
+
+        code, output, _ = self.run_cli("list", "--due")
+        self.assertEqual(code, 0)
+        self.assertIn("No cards due", output)
+
+    def test_study_on_an_empty_deck(self):
+        code, output, _ = self.run_cli("study")
+        self.assertEqual(code, 0)
+        self.assertIn("No cards yet", output)
+
+    def test_study_rejects_a_non_positive_limit(self):
+        code, _, stderr = self.run_cli("study", "--limit", "0")
+        self.assertEqual(code, 1)
+        self.assertIn("Error:", stderr)
+        self.assertIn("Fix:", stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

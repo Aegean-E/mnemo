@@ -11,8 +11,10 @@ from mnemo.errors import MnemoError
 from mnemo.models import normalize_deck, parse_back, parse_front
 from mnemo.scheduler import is_due, maturity
 from mnemo.storage import StateStore
+from mnemo.study import run_session
 
 DEFAULT_DB = "mnemo.json"
+DEFAULT_SESSION_LIMIT = 20
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,6 +37,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = commands.add_parser("list", help="list cards, oldest first")
     listing.add_argument("--due", action="store_true", help="only cards due today")
+
+    study = commands.add_parser("study", help="review due cards in a guided session")
+    study.add_argument("--limit", "-l", type=int, default=DEFAULT_SESSION_LIMIT,
+                       help=f"cards to review at most (default: {DEFAULT_SESSION_LIMIT})")
     return parser
 
 
@@ -65,6 +71,24 @@ def run_list(deck: Deck, args: argparse.Namespace) -> None:
               f"[{card.deck}]  {card.front}  ->  {card.back}")
 
 
+def run_study(deck: Deck, args: argparse.Namespace) -> None:
+    """Run one guided session over the due cards, reading stdin line by line."""
+    if args.limit < 1:
+        raise MnemoError(
+            f"--limit is {args.limit}.",
+            "a session reviews at least one card, so the limit is a positive integer.",
+            "pass --limit 20, or drop the flag to use the default.",
+        )
+
+    def read_line():
+        try:
+            return input()
+        except EOFError:
+            return None
+
+    run_session(deck, date.today().isoformat(), args.limit, read_line, print)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run one command; user errors print the Why/Fix triad and exit 1."""
     args = build_parser().parse_args(argv)
@@ -72,6 +96,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         if args.command == "add":
             run_add(deck, args)
+        elif args.command == "study":
+            run_study(deck, args)
         else:
             run_list(deck, args)
     except MnemoError as error:

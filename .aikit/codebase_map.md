@@ -6,11 +6,11 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `14`
-- **Total Classes**: `15`
-- **Total Top-Level Functions**: `19`
-- **Total Class Methods**: `86`
-- **Total Source Lines**: `1191`
+- **Total Python Modules**: `16`
+- **Total Classes**: `19`
+- **Total Top-Level Functions**: `25`
+- **Total Class Methods**: `107`
+- **Total Source Lines**: `1487`
 
 ---
 
@@ -33,20 +33,21 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: `add` and `list` over one deck file.*
 
-**Size**: `80` lines (`2865` bytes)
+**Size**: `106` lines (`3850` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
 - `def run_add(deck, args)` - *Validate the arguments, record the card and echo it.*
 - `def run_list(deck, args)` - *Print one line per card, or say the deck is empty.*
+- `def run_study(deck, args)` - *Run one guided session over the due cards, reading stdin line by line.*
 - `def main(argv)` - *Run one command; user errors print the Why/Fix triad and exit 1.*
 
 ---
 
 ### [`mnemo/deck.py`](mnemo/deck.py)
-> *Deck operations: adding, finding, listing and selecting due cards.*
+> *Deck operations: adding, finding, listing, due selection and review recording.*
 
-**Size**: `56` lines (`2053` bytes)
+**Size**: `80` lines (`3180` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
@@ -55,6 +56,7 @@
   - Method `.entries()` - *Every card, sorted by id.*
   - Method `.due_cards(today)` - *Every card due on `today` or earlier, earliest due first.*
   - Method `.find(card_id)` - *One card by id, or the Why/Fix triad when it is absent.*
+  - Method `.record_review(card_id, quality, today)` - *Grade one answer: persist the card's next SM-2 state and append the log entry.*
 
 ---
 
@@ -134,6 +136,23 @@
 
 ---
 
+### [`mnemo/study.py`](mnemo/study.py)
+> *The study session engine: due queue, reveal, grade and summary, with injected I/O.*
+
+**Size**: `94` lines (`3483` bytes)
+
+**Classes:**
+- `class SessionReport` - *What one study session did, as its summary line reports it.*
+
+**Functions:**
+- `def _wants_quit(line)` - *Whether a read line is an explicit quit or the end of the input.*
+- `def _ask_grade(read_line, write_line)` - *Read grades until one is valid; None when the reader quits or ends.*
+- `def _announce_empty(deck, write_line)` - *Say why no session can run: an empty deck or nothing due.*
+- `def _summarize(deck, today, reviewed, passed, lapsed, write_line)` - *Close the session with its counts and what the deck waits for now.*
+- `def run_session(deck, today, limit, read_line, write_line)` - *Run one bounded session over the due cards; q and end-of-input quit gracefully.*
+
+---
+
 ### [`tests/__init__.py`](tests/__init__.py)
 **Size**: `0` lines (`0` bytes)
 
@@ -142,7 +161,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `92` lines (`3497` bytes)
+**Size**: `120` lines (`4663` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -156,13 +175,16 @@
   - Method `.test_nested_db_path_is_created()`
   - Method `.test_list_shows_maturity()`
   - Method `.test_list_due_hides_cards_scheduled_for_later()`
+  - Method `.test_study_runs_a_scripted_session()`
+  - Method `.test_study_on_an_empty_deck()`
+  - Method `.test_study_rejects_a_non_positive_limit()`
 
 ---
 
 ### [`tests/test_deck.py`](tests/test_deck.py)
 > *Tests of deck operations over the atomic store.*
 
-**Size**: `66` lines (`2643` bytes)
+**Size**: `78` lines (`3213` bytes)
 
 **Classes:**
 - `class DeckTests`
@@ -174,6 +196,8 @@
   - Method `.test_find_missing_card_raises_the_triad()`
   - Method `.test_state_persists_across_instances()`
   - Method `.test_due_cards_return_only_today_and_earlier()`
+  - Method `.test_record_review_updates_card_and_log()`
+  - Method `.test_record_review_missing_card_raises()`
 
 ---
 
@@ -257,5 +281,32 @@
 **Functions:**
 - `def sample_card(card_id)`
 - `def sample_state(card_id)`
+
+---
+
+### [`tests/test_study.py`](tests/test_study.py)
+> *Tests of the study session engine over scripted input and captured output.*
+
+**Size**: `112` lines (`4615` bytes)
+
+**Classes:**
+- `class ScriptedInput` - *A read_line double that replays lines and reports EOF as None.*
+  - Method `.__init__(lines)`
+  - Method `.__call__()`
+- `class CaptureOutput` - *A write_line double that collects every line the session prints.*
+  - Method `.__init__()`
+  - Method `.__call__(text)`
+  - Method `.text()`
+- `class SessionTests`
+  - Method `.setUp()`
+  - Method `.script(*lines)`
+  - Method `.test_session_grades_and_schedules_every_card()`
+  - Method `.test_quit_at_the_first_reveal_reviews_nothing()`
+  - Method `.test_eof_quits_gracefully()`
+  - Method `.test_quit_mid_session_keeps_finished_reviews()`
+  - Method `.test_invalid_grade_reprompts_until_valid()`
+  - Method `.test_limit_caps_the_session()`
+  - Method `.test_summary_names_the_next_due_day()`
+  - Method `.test_session_without_due_cards_says_so()`
 
 ---

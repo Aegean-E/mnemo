@@ -17,7 +17,9 @@ machine.
   python -m mnemo add "What is SM-2?" --back "a spaced-repetition scheduling algorithm"
   python -m mnemo add "Ease factor floor?" --back "1.3"
   python -m mnemo list
+  python -m mnemo study
   ```
+  In the session, press Enter to reveal each answer, then grade it with `4` (or `good`).
 
 ### 🛠️ AIKit Commands (run from the AIKit folder)
 
@@ -46,6 +48,10 @@ machine.
   malformed file is quarantined and the backup is restored.
 - **One writer at a time.** Read-modify-write operations hold an advisory `.lock` with a 3-second
   wait; a lock older than 30 seconds is broken.
+- **Sessions are line-driven.** `study` walks the due queue: question, Enter to reveal, answer,
+  grade. An invalid grade is re-asked, `q` or the end of input quits without losing finished
+  reviews, and each answer is committed atomically with its log entry. The same flow runs from a
+  terminal and from a pipe, so sessions can be scripted.
 - **Clear failures.** Every user error prints `Error:`, `Why:` and `Fix:`, and exits 1.
 
 ### Commands
@@ -53,6 +59,7 @@ machine.
 ```text
 python -m mnemo [--db PATH] add FRONT --back TEXT [--deck NAME]
 python -m mnemo [--db PATH] list [--due]
+python -m mnemo [--db PATH] study [--limit N]
 ```
 
 ## 📦 What's Inside
@@ -72,17 +79,20 @@ mnemo/
 │   ├── errors.py             <- the Error/Why/Fix triad
 │   ├── models.py             <- Card and Review value objects and parsing rules
 │   ├── scheduler.py          <- the SM-2 functions: grade, next state, due, maturity
-│   └── storage.py            <- atomic JSON store, backup, lock and recovery
+│   ├── storage.py            <- atomic JSON store, backup, lock and recovery
+│   └── study.py              <- the guided review session engine
 └── tests/
     ├── __init__.py
     ├── test_cli.py
     ├── test_deck.py
     ├── test_models.py
     ├── test_scheduler.py
-    └── test_storage.py
+    ├── test_storage.py
+    └── test_study.py
 ```
 
 ## 📚 Design Notes
 
 The on-disk schema, the crash-safety envelope and the id policy are recorded in
-`.aikit/decisions.md` (ADR-001).
+`.aikit/decisions.md` (ADR-001); the scheduling contract in ADR-002; the session input/output
+contract in ADR-003.

@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1792613895.7127702
+    "updated_at": 1792614567.5597448
   },
   "checkpoints": [
     {
@@ -43,6 +43,16 @@
       "status": "in_progress",
       "timestamp": 1792613895.7127702,
       "timestamp_str": "2026-10-21 23:18:15"
+    },
+    {
+      "task_id": "mnemo-sm2-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/6] Study session complete: injected-I/O engine with reveal/grade/re-prompt loop, q and EOF quit, atomic per-answer commits, bounded --limit, deck.record_review; 68 tests green (failing-first: 6 errors before implementation); fix+check: test, hygiene, guidelines, secrets 4/4; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792614567.5597448,
+      "timestamp_str": "2026-10-21 23:29:27"
     }
   ]
 }
