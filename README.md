@@ -1,5 +1,7 @@
 # mnemo
 
+[![Built with AIKit](https://img.shields.io/badge/built%20with-AIKit-6f42c1)](https://github.com/Aegean-E/AIKit)
+
 A dependency-free, local-first spaced-repetition flashcard CLI. Add what you want to remember,
 study it on the days the SM-2 algorithm says it is due, and watch the schedule stretch as you
 recall and compress it when you forget. Everything stays in one readable JSON file on your
