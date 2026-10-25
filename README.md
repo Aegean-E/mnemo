@@ -85,6 +85,7 @@ mnemo/
 ├── .gitignore                <- transient AIKit state and local decks excluded
 ├── LICENSE
 ├── README.md
+├── COMMERCIAL.md
 ├── pyproject.toml            <- package metadata and the `mnemo` console script
 ├── mnemo/
 │   ├── __init__.py
