@@ -118,8 +118,6 @@ The on-disk schema, the crash-safety envelope and the id policy are recorded in
 contract in ADR-003; the statistics definitions in ADR-004; card management in ADR-005;
 corrupt-deck recovery in ADR-006.
 
-> **License history:** versions up to and including `v0.1.0-agpl` remain available under GNU AGPL-3.0.
-
 ## 📜 License
 
 Free for personal use under the Aegean License 1.1 (AL-1.1); see [LICENSE](LICENSE). Any commercial use needs the Aegean Commercial License 1.0 (ACL-1.0); see [COMMERCIAL.md](COMMERCIAL.md).
