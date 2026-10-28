@@ -13,25 +13,25 @@
   "ui_source": "detected",
   "topics": [
     "aikit",
+    "source-available",
+    "aegean-license",
+    "commercial-license",
     "cli",
     "education",
     "flashcards",
     "local-first",
-    "productivity",
     "python",
     "sm2",
     "spaced-repetition",
     "study",
     "terminal",
-    "source-available",
     "aegeanworks",
     "command-line-tool",
     "learning",
-    "software",
     "json",
     "terminal-ui",
-    "study-tools",
-    "memory-retention"
+    "memory-retention",
+    "study-tools"
   ],
   "topics_source": "ai:kilo:2026-10-27",
   "topics_reviewed_at": "2026-10-28",
@@ -56,5 +56,10 @@
   "topics_choice_round4": [
     "study-tools",
     "memory-retention"
+  ],
+  "license_topics": [
+    "source-available",
+    "aegean-license",
+    "commercial-license"
   ]
 }
