@@ -2,9 +2,9 @@
 
 <!-- aegean:media:start -->
 <p align="center"><img src="assets/social-preview.png" alt="Mnemo social preview" width="100%"></p>
+<p align="center"><a href="LICENSE"><img src="https://img.shields.io/badge/license-AL--1.1-2f9e44" alt="License"></a> <a href="https://github.com/AegeanWorks/AIKit"><img src="https://img.shields.io/badge/AIKit-integrated-6f42c1" alt="AIKit Integrated"></a></p>
 <!-- aegean:media:end -->
 
-[![Built with AIKit](https://img.shields.io/badge/built%20with-AIKit-6f42c1)](https://github.com/AegeanWorks/AIKit)
 
 A dependency-free, local-first spaced-repetition flashcard CLI. Add what you want to remember,
 study it on the days the SM-2 algorithm says it is due, and watch the schedule stretch as you
