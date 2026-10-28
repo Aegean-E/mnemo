@@ -3,5 +3,58 @@
   "name": "mnemo",
   "test_command": "python -m unittest discover",
   "gates": {},
-  "created": "2026-10-21"
+  "created": "2026-10-21",
+  "has_ui": false,
+  "ui_kind": "cli",
+  "ui_evidence": [
+    "mnemo/cli.py"
+  ],
+  "ui_checked_at": "2026-10-28",
+  "ui_source": "detected",
+  "topics": [
+    "aikit",
+    "cli",
+    "education",
+    "flashcards",
+    "local-first",
+    "productivity",
+    "python",
+    "sm2",
+    "spaced-repetition",
+    "study",
+    "terminal",
+    "source-available",
+    "aegeanworks",
+    "command-line-tool",
+    "learning",
+    "software",
+    "json",
+    "terminal-ui",
+    "study-tools",
+    "memory-retention"
+  ],
+  "topics_source": "ai:kilo:2026-10-27",
+  "topics_reviewed_at": "2026-10-28",
+  "topics_choice": [
+    "aegeanworks",
+    "software",
+    "command-line-tool",
+    "learning"
+  ],
+  "topics_choice_round2": [
+    "spaced-repetition",
+    "flashcards",
+    "education",
+    "study"
+  ],
+  "topics_choice_round3": [
+    "productivity",
+    "terminal-ui",
+    "json",
+    "sm2"
+  ],
+  "topics_choice_round4": [
+    "study-tools",
+    "memory-retention"
+  ]
 }

@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "name": "mnemo",
+  "repo": "Mnemo",
+  "has_ui": false,
+  "ui_kind": "cli",
+  "palette": [
+    "#0b1220",
+    "#1e293b",
+    "#f472b6",
+    "#f8fafc"
+  ],
+  "assets": {
+    "logo": {
+      "path": "assets/logo.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:35",
+      "review": {
+        "status": "approved",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "MN monogram in magenta, dark navy, subtitle readable.",
+        "score": 93,
+        "reviewed_at": "2026-10-28T08:10:43"
+      }
+    },
+    "social_preview": {
+      "path": "assets/social-preview.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:35",
+      "review": {
+        "status": "approved",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "MN icon, title, spaced-repetition flashcard description, CLI tag.",
+        "score": 93,
+        "reviewed_at": "2026-10-28T08:10:43"
+      }
+    },
+    "social_preview_png": {
+      "path": "assets/social-preview.png",
+      "status": "pending_review",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:36",
+      "review": null
+    }
+  },
+  "screenshots": []
+}
