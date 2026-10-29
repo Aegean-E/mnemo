@@ -187,6 +187,11 @@ class CliTests(unittest.TestCase):
         self.assertIn("kana", output)
         self.assertNotIn("der die das", output)
 
+    def test_list_empty_deck_names_the_deck(self):
+        code, output, _ = self.run_cli("list", "--deck", "alpha")
+        self.assertEqual(code, 0)
+        self.assertIn("No cards in deck 'alpha'", output)
+
     def test_study_filter_by_deck(self):
         from unittest import mock
         self.run_cli("add", "alpha front", "--back", "a", "--deck", "alpha")

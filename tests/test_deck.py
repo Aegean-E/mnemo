@@ -33,6 +33,12 @@ class DeckTests(unittest.TestCase):
         self.deck.add_card("front 1", "back", "default", "2026-10-21")
         self.assertEqual([card.front for card in self.deck.entries()], ["front 2", "front 1"])
 
+    def test_add_and_edit_normalize_text_and_deck(self):
+        card = self.deck.add_card("  front  ", "  back  ", " Japanese ", "2026-10-21")
+        self.assertEqual((card.front, card.back, card.deck), ("front", "back", "japanese"))
+        updated = self.deck.edit_card(1, front="  new front  ", deck=" Kana ")
+        self.assertEqual((updated.front, updated.deck), ("new front", "kana"))
+
     def test_find_returns_the_card(self):
         self.deck.add_card("front", "back", "kana", "2026-10-21")
         self.assertEqual(self.deck.find(1).deck, "kana")

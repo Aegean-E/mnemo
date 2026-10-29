@@ -78,8 +78,14 @@ def run_list(deck: Deck, args: argparse.Namespace) -> None:
         today = date.today().isoformat()
         cards = [card for card in cards if is_due(card, today)]
     if not cards:
-        message = "No cards due today." if args.due else \
-            "No cards yet. Add one with: mnemo add \"question\" --back \"answer\""
+        if args.due:
+            message = ("No cards due today." if deck_name is None
+                       else f"No cards due today in deck '{deck_name}'.")
+        elif deck_name is not None:
+            message = (f"No cards in deck '{deck_name}'. Add one with: "
+                       f"mnemo add \"question\" --back \"answer\" --deck {deck_name}")
+        else:
+            message = "No cards yet. Add one with: mnemo add \"question\" --back \"answer\""
         print(message)
         return
     for card in cards:

@@ -140,8 +140,18 @@ class SessionTests(unittest.TestCase):
         report = run_session(self.deck, "2026-10-21", 20, self.script(), output,
                              deck_name="alpha")
         self.assertEqual(report.reviewed, 0)
-        self.assertIn("No cards yet", output.text())
+        self.assertIn("No cards in deck 'alpha'", output.text())
         self.assertNotIn("Next due", output.text())
+
+    def test_empty_session_message_names_a_deck_with_nothing_due(self):
+        self.deck.add_card("alpha front", "back", "alpha", "2026-10-21")
+        self.deck.record_review(1, 4, "2026-10-21")
+        output = CaptureOutput()
+        report = run_session(self.deck, "2026-10-21", 20, self.script(), output,
+                             deck_name="alpha")
+        self.assertEqual(report.reviewed, 0)
+        self.assertIn("No cards due today in deck 'alpha'", output.text())
+        self.assertIn("2026-10-22", output.text())
 
 
 if __name__ == "__main__":

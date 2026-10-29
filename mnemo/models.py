@@ -119,6 +119,24 @@ class Card:
                 "ids address cards in every command, so each is a positive integer.",
                 "restore the deck's .bak, or edit the file so the id is a positive integer.",
             )
+        if not isinstance(self.front, str) or not self.front or self.front != self.front.strip():
+            raise MnemoError(
+                f"card {self.id} has an invalid front.",
+                "a card front is non-empty text with no surrounding whitespace.",
+                "restore the deck's .bak, or edit the file so front is non-empty and trimmed.",
+            )
+        if not isinstance(self.back, str) or not self.back or self.back != self.back.strip():
+            raise MnemoError(
+                f"card {self.id} has an invalid back.",
+                "a card back is non-empty text with no surrounding whitespace.",
+                "restore the deck's .bak, or edit the file so back is non-empty and trimmed.",
+            )
+        if not isinstance(self.deck, str) or not self.deck or normalize_deck(self.deck) != self.deck:
+            raise MnemoError(
+                f"card {self.id} has deck {self.deck!r}.",
+                "deck labels are non-empty, lowercase and at most 64 characters.",
+                "restore the deck's .bak, or edit the file with a normalized deck label.",
+            )
         if isinstance(self.ease, bool) or not isinstance(self.ease, (int, float)) \
                 or not math.isfinite(self.ease) or self.ease < EASE_FLOOR:
             raise MnemoError(

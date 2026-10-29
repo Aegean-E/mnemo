@@ -9,8 +9,8 @@
 - **Total Python Modules**: `18`
 - **Total Classes**: `21`
 - **Total Top-Level Functions**: `32`
-- **Total Class Methods**: `148`
-- **Total Source Lines**: `2047`
+- **Total Class Methods**: `153`
+- **Total Source Lines**: `2131`
 
 ---
 
@@ -33,7 +33,7 @@
 ### [`mnemo/cli.py`](mnemo/cli.py)
 > *Command-line interface: add, list, study, stats, edit and remove over one deck file.*
 
-**Size**: `192` lines (`7943` bytes)
+**Size**: `198` lines (`8265` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
@@ -51,7 +51,7 @@
 ### [`mnemo/deck.py`](mnemo/deck.py)
 > *Deck operations: adding, editing, removing, listing and reviewing cards.*
 
-**Size**: `142` lines (`5957` bytes)
+**Size**: `156` lines (`6328` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
@@ -85,7 +85,7 @@
 ### [`mnemo/models.py`](mnemo/models.py)
 > *The card and review value objects, their schema bounds and their parsing rules.*
 
-**Size**: `227` lines (`8881` bytes)
+**Size**: `245` lines (`10007` bytes)
 
 **Classes:**
 - `class Card` - *One flashcard and its complete SM-2 scheduling state.*
@@ -138,7 +138,7 @@
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
-**Size**: `288` lines (`12291` bytes)
+**Size**: `288` lines (`12313` bytes)
 
 **Classes:**
 - `class DeckState` - *The whole deck file: every card and every logged review.*
@@ -166,7 +166,7 @@
 ### [`mnemo/study.py`](mnemo/study.py)
 > *The study session engine: due queue, reveal, grade and summary, with injected I/O.*
 
-**Size**: `98` lines (`3743` bytes)
+**Size**: `105` lines (`4016` bytes)
 
 **Classes:**
 - `class SessionReport` - *What one study session did, as its summary line reports it.*
@@ -188,7 +188,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `239` lines (`10047` bytes)
+**Size**: `244` lines (`10257` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -213,6 +213,7 @@
   - Method `.test_remove_deletes_the_card()`
   - Method `.test_remove_missing_card_fails()`
   - Method `.test_list_filter_by_deck()`
+  - Method `.test_list_empty_deck_names_the_deck()`
   - Method `.test_study_filter_by_deck()`
   - Method `.test_stats_filter_by_deck()`
   - Method `.test_empty_deck_filter_fails_for_list_study_and_stats()`
@@ -224,7 +225,7 @@
 ### [`tests/test_deck.py`](tests/test_deck.py)
 > *Tests of deck operations over the atomic store.*
 
-**Size**: `125` lines (`5574` bytes)
+**Size**: `131` lines (`5969` bytes)
 
 **Classes:**
 - `class DeckTests`
@@ -232,6 +233,7 @@
   - Method `.test_add_assigns_sequential_ids()`
   - Method `.test_new_card_is_due_the_day_it_is_added()`
   - Method `.test_entries_are_sorted_by_id()`
+  - Method `.test_add_and_edit_normalize_text_and_deck()`
   - Method `.test_find_returns_the_card()`
   - Method `.test_find_missing_card_raises_the_triad()`
   - Method `.test_state_persists_across_instances()`
@@ -251,7 +253,7 @@
 ### [`tests/test_models.py`](tests/test_models.py)
 > *Tests of the card and review value objects and their parsing rules.*
 
-**Size**: `120` lines (`4587` bytes)
+**Size**: `130` lines (`5095` bytes)
 
 **Classes:**
 - `class ParseTests`
@@ -270,6 +272,7 @@
   - Method `.test_card_from_dict_fills_absent_optional_fields()`
   - Method `.test_card_from_dict_rejects_bad_records()`
   - Method `.test_card_rejects_negative_or_boolean_scheduling_counters()`
+  - Method `.test_card_rejects_blank_or_unnormalized_text()`
 - `class ReviewTests`
   - Method `.test_review_round_trips_through_dicts()`
   - Method `.test_review_rejects_out_of_range_quality()`
@@ -326,7 +329,7 @@
 ### [`tests/test_storage.py`](tests/test_storage.py)
 > *Fault-injection tests for the atomic deck store (PRINCIPLE-013).*
 
-**Size**: `160` lines (`6891` bytes)
+**Size**: `168` lines (`7232` bytes)
 
 **Classes:**
 - `class StoreFaultTests`
@@ -346,6 +349,7 @@
   - Method `.test_replace_does_not_retry_a_non_transient_error()`
   - Method `.test_stale_lock_is_broken()`
   - Method `.test_release_keeps_a_lock_replaced_by_another_writer()`
+  - Method `.test_release_warns_on_an_undecodable_lock()`
   - Method `.test_fsync_directory_failure_is_reported()`
 
 **Functions:**
@@ -357,7 +361,7 @@
 ### [`tests/test_study.py`](tests/test_study.py)
 > *Tests of the study session engine over scripted input and captured output.*
 
-**Size**: `148` lines (`6475` bytes)
+**Size**: `158` lines (`7018` bytes)
 
 **Classes:**
 - `class ScriptedInput` - *A read_line double that replays lines and reports EOF as None.*
@@ -382,5 +386,6 @@
   - Method `.test_session_honors_the_deck_filter()`
   - Method `.test_session_summary_honors_the_deck_filter()`
   - Method `.test_empty_session_message_honors_the_deck_filter()`
+  - Method `.test_empty_session_message_names_a_deck_with_nothing_due()`
 
 ---

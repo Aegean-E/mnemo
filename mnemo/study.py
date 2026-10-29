@@ -46,9 +46,16 @@ def _announce_empty(deck: Deck, write_line: Callable[[str], None],
     """Say why no session can run: an empty deck or nothing due."""
     cards = deck.entries(deck_name)
     if not cards:
-        write_line("No cards yet. Add one first.")
+        if deck_name is None:
+            write_line("No cards yet. Add one first.")
+        else:
+            write_line(f"No cards in deck '{deck_name}'. Add one first.")
         return
-    write_line(f"No cards due today. Next due: {min(card.due for card in cards)}.")
+    next_due = min(card.due for card in cards)
+    if deck_name is None:
+        write_line(f"No cards due today. Next due: {next_due}.")
+    else:
+        write_line(f"No cards due today in deck '{deck_name}'. Next due: {next_due}.")
 
 
 def _summarize(deck: Deck, today: str, reviewed: int, passed: int, lapsed: int,

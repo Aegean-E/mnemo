@@ -265,7 +265,7 @@ class StateStore:
             try:
                 if self.lock_path.read_text(encoding="ascii") == token:
                     self.lock_path.unlink(missing_ok=True)
-            except OSError as exc:
+            except (OSError, UnicodeDecodeError) as exc:
                 print(f"[WARN] Could not release lock {self.lock_path.name}: {exc}",
                       file=sys.stderr)
 

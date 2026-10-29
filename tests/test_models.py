@@ -104,6 +104,16 @@ class CardTests(unittest.TestCase):
                     with self.assertRaises(MnemoError):
                         Card(**base, **{field: value})
 
+    def test_card_rejects_blank_or_unnormalized_text(self):
+        base = dict(id=1, front="f", back="b", deck="default",
+                    due="2026-10-21", added="2026-10-21")
+        for overrides in ({"front": ""}, {"front": " f "},
+                          {"back": ""}, {"back": " b "},
+                          {"deck": ""}, {"deck": " Default "}):
+            with self.subTest(**overrides):
+                with self.assertRaises(MnemoError):
+                    Card(**{**base, **overrides})
+
 
 class ReviewTests(unittest.TestCase):
     def test_review_round_trips_through_dicts(self):

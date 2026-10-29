@@ -146,6 +146,14 @@ class StoreFaultTests(unittest.TestCase):
         self.assertTrue(self.store.lock_path.exists())
         self.assertEqual(self.store.lock_path.read_text(encoding="ascii"), "other-writer")
 
+    def test_release_warns_on_an_undecodable_lock(self):
+        error = io.StringIO()
+        with redirect_stderr(error):
+            with self.store._lock():
+                self.store.lock_path.write_bytes(b"\xff")
+        self.assertIn("Could not release lock", error.getvalue())
+        self.assertTrue(self.store.lock_path.exists())
+
     def test_fsync_directory_failure_is_reported(self):
         error = io.StringIO()
         with mock.patch.object(storage.os, "name", "posix"):

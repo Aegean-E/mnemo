@@ -4,7 +4,15 @@ from dataclasses import replace
 from typing import List, Optional
 
 from mnemo.errors import MnemoError
-from mnemo.models import Card, EASE_DEFAULT, Review, parse_iso_date
+from mnemo.models import (
+    Card,
+    EASE_DEFAULT,
+    Review,
+    normalize_deck,
+    parse_back,
+    parse_front,
+    parse_iso_date,
+)
 from mnemo.scheduler import is_due, next_state
 from mnemo.storage import DeckState, StateStore
 
@@ -25,6 +33,9 @@ class Deck:
     def add_card(self, front: str, back: str, deck: str, today: str) -> Card:
         """Record a new card, due today, and return it with its assigned id."""
         parse_iso_date(today, "today")
+        front = parse_front(front)
+        back = parse_back(back)
+        deck = normalize_deck(deck)
         created: List[Card] = []
 
         def mutate(state: DeckState) -> DeckState:
@@ -97,6 +108,9 @@ class Deck:
     def edit_card(self, card_id: int, front: Optional[str] = None,
                   back: Optional[str] = None, deck: Optional[str] = None) -> Card:
         """Change the given fields of one card, keeping every other field, and persist it."""
+        front = parse_front(front) if front is not None else None
+        back = parse_back(back) if back is not None else None
+        deck = normalize_deck(deck) if deck is not None else None
         updated: List[Card] = []
 
         def mutate(state: DeckState) -> DeckState:
