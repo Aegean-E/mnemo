@@ -75,13 +75,20 @@ class StateStore:
         backup = self._read_backup()
         if backup is not None:
             state = self._decode(backup)
+            restored = False
             try:
                 self._restore(state)
-            except MnemoError as error:
-                print(f"[WARN] Could not restore {self.path.name}: {error.message}",
+                restored = True
+            except (MnemoError, OSError) as error:
+                detail = error.message if isinstance(error, MnemoError) else str(error)
+                print(f"[WARN] Could not restore {self.path.name}: {detail}",
                       file=sys.stderr)
-            print(f"[WARN] {reason}; restored {self.path.name} from "
-                  f"{self.backup_path.name}.", file=sys.stderr)
+            if restored:
+                print(f"[WARN] {reason}; restored {self.path.name} from "
+                      f"{self.backup_path.name}.", file=sys.stderr)
+            else:
+                print(f"[WARN] {reason}; recovered {self.path.name} in memory from "
+                      f"{self.backup_path.name}.", file=sys.stderr)
             return state
         print(f"[WARN] {reason}; starting with an empty deck.", file=sys.stderr)
         return DeckState(cards=[], reviews=[])

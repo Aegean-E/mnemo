@@ -125,6 +125,24 @@ class SessionTests(unittest.TestCase):
         self.assertNotIn("beta front", output.text())
         self.assertEqual(self.deck.find(2).repetitions, 0)
 
+    def test_session_summary_honors_the_deck_filter(self):
+        self.deck.add_card("alpha front", "back", "alpha", "2026-10-21")
+        self.deck.add_card("beta front", "back", "beta", "2026-10-21")
+        output = CaptureOutput()
+        run_session(self.deck, "2026-10-21", 20, self.script("", "5"), output,
+                    deck_name="alpha")
+        self.assertNotIn("still due today", output.text())
+        self.assertIn("Next session:", output.text())
+
+    def test_empty_session_message_honors_the_deck_filter(self):
+        self.deck.add_card("beta front", "back", "beta", "2026-10-21")
+        output = CaptureOutput()
+        report = run_session(self.deck, "2026-10-21", 20, self.script(), output,
+                             deck_name="alpha")
+        self.assertEqual(report.reviewed, 0)
+        self.assertIn("No cards yet", output.text())
+        self.assertNotIn("Next due", output.text())
+
 
 if __name__ == "__main__":
     unittest.main()

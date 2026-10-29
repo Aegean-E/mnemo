@@ -41,9 +41,10 @@ def _ask_grade(read_line: Callable[[], Optional[str]],
             write_line(GRADE_HINT)
 
 
-def _announce_empty(deck: Deck, write_line: Callable[[str], None]) -> None:
+def _announce_empty(deck: Deck, write_line: Callable[[str], None],
+                    deck_name: Optional[str] = None) -> None:
     """Say why no session can run: an empty deck or nothing due."""
-    cards = deck.entries()
+    cards = deck.entries(deck_name)
     if not cards:
         write_line("No cards yet. Add one first.")
         return
@@ -51,10 +52,11 @@ def _announce_empty(deck: Deck, write_line: Callable[[str], None]) -> None:
 
 
 def _summarize(deck: Deck, today: str, reviewed: int, passed: int, lapsed: int,
-               write_line: Callable[[str], None]) -> None:
+               write_line: Callable[[str], None],
+               deck_name: Optional[str] = None) -> None:
     """Close the session with its counts and what the deck waits for now."""
     write_line(f"Session done: {reviewed} reviewed, {passed} passed, {lapsed} lapsed.")
-    cards = deck.entries()
+    cards = deck.entries(deck_name)
     remaining = [card for card in cards if is_due(card, today)]
     if remaining:
         noun = "card" if len(remaining) == 1 else "cards"
@@ -70,7 +72,7 @@ def run_session(deck: Deck, today: str, limit: int,
     """Run one bounded session over the due cards; q and end-of-input quit gracefully."""
     queue = deck.due_cards(today, deck_name)[:limit]
     if not queue:
-        _announce_empty(deck, write_line)
+        _announce_empty(deck, write_line, deck_name)
         return SessionReport(reviewed=0, passed=0, lapsed=0, quit_early=False)
     reviewed = passed = lapsed = 0
     quit_early = False
@@ -92,5 +94,5 @@ def run_session(deck: Deck, today: str, limit: int,
             passed += 1
         else:
             lapsed += 1
-    _summarize(deck, today, reviewed, passed, lapsed, write_line)
+    _summarize(deck, today, reviewed, passed, lapsed, write_line, deck_name)
     return SessionReport(reviewed=reviewed, passed=passed, lapsed=lapsed, quit_early=quit_early)

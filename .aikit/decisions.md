@@ -32,16 +32,15 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   invents parameters nobody can verify. The tests must also pin exact dates without waiting for
   calendar time to pass.
 - **Decision**: Implement the SM-2 algorithm exactly as published: grades 0-5, ease updated by
-  `EF' = EF + (0.1 - q*(0.08 + q*0.02))` on every answer and floored at 1.3, intervals 1, 6,
+  `EF' = EF + (0.1 - (5-q)*(0.08 + (5-q)*0.02))` on every answer and floored at 1.3, intervals 1, 6,
   then `round(interval * EF')`, and any grade below 3 resets repetitions and sets a 1-day
   interval while counting a lapse. The words again=1, hard=3, good=4, easy=5 also grade an
   answer. Every function takes the current day as an explicit argument; no function reads the
   clock. Maturity labels: new (never answered), learning (interval under 21 days), mature.
 - **Consequences**: The schedule is byte-for-byte reproducible from the deck file and unit tests
-  pin exact due dates. Fidelity keeps the published formula's known quirk that a grade of 0
-  raises the ease by 0.1; it is floored but otherwise left alone, and a test pins it so the
-  behaviour is a decision, not a bug. Cards graded 4 every time grind their ease down to the
-  1.3   floor, exactly as the published algorithm does.
+  pin exact due dates. Grades below 4 lower the ease, a grade of 4 leaves it unchanged, and a
+  grade of 5 raises it by 0.1; the ease is floored at 1.3. A test pins the exact values so the
+  behaviour is a decision, not a bug. Cards graded 4 every time keep their ease at 2.5.
 
 ### ADR-003: Study sessions are line-driven with injected input and output
 - **Date**: 2026-10-21
@@ -113,12 +112,16 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   save, so recovery can lose that single most recent write; that residual risk is ADR-001's
   stated cost and the warning now says what happened.
 
-## Licensing migration (v0.1.0-agpl)
+### ADR-007: New versions use the Aegean License 1.1
+- **Date**: 2026-10-26
+- **Status**: Accepted
+- **Context**: The project was published under GNU AGPL-3.0. AegeanWorks moved new releases to the source-available Aegean License 1.1 (AL-1.1), with commercial use under the Aegean Commercial License 1.0 (ACL-1.0). The last commit released under AGPL-3.0 is `41e0561`; no `v0.1.0-agpl` tag exists. Counsel review of the AL-1.1 text remains pending.
+- **Decision**: Versions after `41e0561` use AL-1.1. `LICENSE`, `LICENSES/LicenseRef-AL-1.1.txt`, `pyproject.toml` and `REUSE.toml` identify the project as `LicenseRef-AL-1.1`; `COMMERCIAL.md` states the ACL-1.0 tier terms. The license text's repository-relative references to `licenses/ACL-1.0.md` and `licenses/CONTRIBUTING_CLA.md` are expanded to their canonical Aegean-Licensing URLs so they resolve in this standalone repository.
+- **Consequences**: Personal use remains free; commercial or organizational use needs ACL-1.0. Versions up to and including `41e0561` keep their AGPL-3.0 rights. The license text now differs from the canonical AL-1.1 copy only in those two pointer URLs; a later license sync must preserve or reapply them.
 
-- New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `v0.1.0-agpl` remain under GNU AGPL-3.0.
-- Rights holder: AegeanWorks; commercial use under ACL-1.0.
-- Counsel review of the 1.1 texts remains pending.
-
-## License notice cleanup (2026-10-26)
-
-- The license-history notes were removed from README.md and COMMERCIAL.md: the project is offered only under the Aegean License 1.1 (AL-1.1), with commercial use under ACL-1.0.
+### ADR-008: Remove license-history notes from the current offer
+- **Date**: 2026-10-26
+- **Status**: Accepted
+- **Context**: README.md and COMMERCIAL.md carried notes about earlier AGPL and AECL terms, which made the current offer ambiguous.
+- **Decision**: Remove the license-history notes from README.md and COMMERCIAL.md. The project is offered only under AL-1.1, with commercial use under ACL-1.0; the migration record stays in ADR-007 and in Git history.
+- **Consequences**: Readers see one current license and one commercial path. Earlier releases remain governed by the license they shipped with.

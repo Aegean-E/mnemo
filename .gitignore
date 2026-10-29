@@ -7,6 +7,7 @@ __pycache__/
 .aikit/*.bak
 .aikit/*.tmp_*
 .aikit/*.corrupt_*
+.aikit/reforge.reviews/
 
 # Local decks and their recovery files
 mnemo.json
@@ -15,3 +16,5 @@ mnemo.json.lock
 mnemo.json.stale_*
 .corrupt_mnemo.json_*
 .mnemo.json.tmp_*
+# AIKit transient state
+node_modules/

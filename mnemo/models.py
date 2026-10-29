@@ -1,5 +1,6 @@
 """The card and review value objects, their schema bounds and their parsing rules."""
 
+import math
 import re
 from dataclasses import dataclass
 from datetime import date
@@ -119,12 +120,20 @@ class Card:
                 "restore the deck's .bak, or edit the file so the id is a positive integer.",
             )
         if isinstance(self.ease, bool) or not isinstance(self.ease, (int, float)) \
-                or self.ease < EASE_FLOOR:
+                or not math.isfinite(self.ease) or self.ease < EASE_FLOOR:
             raise MnemoError(
                 f"card {self.id} has ease {self.ease!r}.",
                 f"the SM-2 ease factor never drops below {EASE_FLOOR}.",
                 f"restore the deck's .bak, or edit the file so ease is >= {EASE_FLOOR}.",
             )
+        for field_name in ("interval_days", "repetitions", "lapses"):
+            value = getattr(self, field_name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise MnemoError(
+                    f"card {self.id} has {field_name} {value!r}.",
+                    "SM-2 scheduling counters are non-negative integers.",
+                    f"restore the deck's .bak, or edit the file so {field_name} is an integer >= 0.",
+                )
         parse_iso_date(self.due, "due")
         parse_iso_date(self.added, "added")
 
@@ -152,6 +161,14 @@ class Card:
                 "each card is one JSON object with its text and scheduling fields.",
                 "restore the deck's .bak, or remove the broken entry from the file.",
             )
+        try:
+            ease = float(record.get("ease", EASE_DEFAULT))
+        except (TypeError, ValueError) as exc:
+            raise MnemoError(
+                f"stored ease is {record.get('ease')!r}.",
+                "the SM-2 ease factor is a finite number at or above its floor.",
+                "restore the deck's .bak, or edit the file so ease is a number >= 1.3.",
+            ) from exc
         return cls(
             id=record.get("id", 0),
             front=_nonblank(record.get("front"), "front"),
@@ -159,7 +176,7 @@ class Card:
             deck=normalize_deck(record.get("deck")),
             due=parse_iso_date(record.get("due"), "due"),
             added=parse_iso_date(record.get("added"), "added"),
-            ease=float(record.get("ease", EASE_DEFAULT)),
+            ease=ease,
             interval_days=_bounded_int(record, "interval_days", 0),
             repetitions=_bounded_int(record, "repetitions", 0),
             lapses=_bounded_int(record, "lapses", 0),

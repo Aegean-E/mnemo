@@ -64,7 +64,8 @@ machine.
   and how many cards fall due on each of the next seven days.
 - **Decks partition the file, not the machine.** `--deck` narrows `list`, `study` and `stats` to
   one label; `edit` can move a card between decks. The review log is append-only, so removing a
-  card keeps its history in the retention numbers.
+  card keeps its history in the unfiltered retention numbers; `stats --deck` counts only reviews
+  of cards still in that deck.
 - **UTF-8 everywhere.** The deck file is always UTF-8, and the CLI reconfigures its output
   streams to UTF-8 with replacement, so non-Latin scripts print instead of crashing on legacy
   consoles.
@@ -91,6 +92,7 @@ mnemo/
 ├── LICENSES/                 <- REUSE license texts
 ├── REUSE.toml                <- Machine-readable SPDX metadata
 ├── README.md
+├── assets/
 ├── COMMERCIAL.md
 ├── pyproject.toml            <- package metadata and the `mnemo` console script
 ├── mnemo/

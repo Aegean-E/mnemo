@@ -1,4 +1,4 @@
-"""Command-line interface: `add` and `list` over one deck file."""
+"""Command-line interface: add, list, study, stats, edit and remove over one deck file."""
 
 import argparse
 import sys
@@ -72,7 +72,7 @@ def run_add(deck: Deck, args: argparse.Namespace) -> None:
 
 def run_list(deck: Deck, args: argparse.Namespace) -> None:
     """Print one line per card, or say the deck is empty."""
-    deck_name = normalize_deck(args.deck) if args.deck else None
+    deck_name = normalize_deck(args.deck) if args.deck is not None else None
     cards = deck.entries(deck_name)
     if args.due:
         today = date.today().isoformat()
@@ -126,18 +126,19 @@ def run_study(deck: Deck, args: argparse.Namespace) -> None:
             return None
 
     run_session(deck, date.today().isoformat(), args.limit, read_line, print,
-                deck_name=normalize_deck(args.deck) if args.deck else None)
+                deck_name=normalize_deck(args.deck) if args.deck is not None else None)
 
 
 def run_stats(deck: Deck, args: argparse.Namespace) -> None:
     """Print the deck's counts, retention and seven-day due forecast."""
-    deck_name = normalize_deck(args.deck) if args.deck else None
+    deck_name = normalize_deck(args.deck) if args.deck is not None else None
     state = deck.snapshot()
     cards = select_deck(state.cards, deck_name)
-    reviews = state.reviews if deck_name is None else [
-        review for review in state.reviews
-        if review.card_id in {card.id for card in cards}
-    ]
+    if deck_name is None:
+        reviews = state.reviews
+    else:
+        card_ids = {card.id for card in cards}
+        reviews = [review for review in state.reviews if review.card_id in card_ids]
     stats = summarize(cards, reviews, date.today().isoformat())
     retention = "n/a (no reviews yet)" if stats.retention is None else f"{stats.retention:.0%}"
     print(f"cards: {stats.total}  ({stats.due_today} due today)")
@@ -180,5 +181,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             run_list(deck, args)
     except MnemoError as error:
         print(error.render(), file=sys.stderr)
+        return 1
+    except OSError as error:
+        print(MnemoError(
+            f"The deck could not be accessed: {error}",
+            "the deck file, its folder or its backup could not be read or written.",
+            "check the path, permissions and free space, then run the command again.",
+        ).render(), file=sys.stderr)
         return 1
     return 0

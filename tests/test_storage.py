@@ -67,6 +67,17 @@ class StoreFaultTests(unittest.TestCase):
         self.assertTrue(any(name.startswith(".corrupt_") for name in
                             (entry.name for entry in self.temp_dir.iterdir())))
 
+    def test_restore_failure_returns_the_recovered_state(self):
+        self._write(sample_state(1))
+        self._write(sample_state(1))
+        self.path.write_text("{broken", encoding="utf-8")
+        with mock.patch.object(self.store, "_restore", side_effect=OSError("disk full")):
+            with redirect_stderr(io.StringIO()) as stderr:
+                state = self.store.read()
+        self.assertEqual([card.id for card in state.cards], [1])
+        self.assertIn("Could not restore", stderr.getvalue())
+        self.assertIn("recovered mnemo.json in memory", stderr.getvalue())
+
     def test_zero_byte_file_recovers_from_backup(self):
         self._write(sample_state(1))
         self._write(sample_state(1))

@@ -10,7 +10,7 @@ version = "0.2.0"
 description = "A dependency-free, local-first spaced-repetition flashcard CLI"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "Aegean-E", email = "aegean-licensing@proton.me" }]
+authors = [{ name = "AegeanWorks", email = "aegean-licensing@proton.me" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

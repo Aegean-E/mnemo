@@ -9,8 +9,8 @@
 - **Total Python Modules**: `18`
 - **Total Classes**: `21`
 - **Total Top-Level Functions**: `32`
-- **Total Class Methods**: `139`
-- **Total Source Lines**: `1927`
+- **Total Class Methods**: `146`
+- **Total Source Lines**: `2025`
 
 ---
 
@@ -31,9 +31,9 @@
 ---
 
 ### [`mnemo/cli.py`](mnemo/cli.py)
-> *Command-line interface: `add` and `list` over one deck file.*
+> *Command-line interface: add, list, study, stats, edit and remove over one deck file.*
 
-**Size**: `184` lines (`7508` bytes)
+**Size**: `192` lines (`7943` bytes)
 
 **Functions:**
 - `def build_parser()` - *The command grammar; `--db` selects the deck file for every command.*
@@ -85,7 +85,7 @@
 ### [`mnemo/models.py`](mnemo/models.py)
 > *The card and review value objects, their schema bounds and their parsing rules.*
 
-**Size**: `210` lines (`7975` bytes)
+**Size**: `227` lines (`8881` bytes)
 
 **Classes:**
 - `class Card` - *One flashcard and its complete SM-2 scheduling state.*
@@ -111,7 +111,7 @@
 ### [`mnemo/scheduler.py`](mnemo/scheduler.py)
 > *The SM-2 scheduling functions: pure, date-injected, exactly the published algorithm.*
 
-**Size**: `68` lines (`2695` bytes)
+**Size**: `68` lines (`2709` bytes)
 
 **Functions:**
 - `def grade_from_text(text)` - *A grade from one digit 0-5, or from the words again, hard, good and easy.*
@@ -138,7 +138,7 @@
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
-**Size**: `275` lines (`11639` bytes)
+**Size**: `282` lines (`11996` bytes)
 
 **Classes:**
 - `class DeckState` - *The whole deck file: every card and every logged review.*
@@ -166,7 +166,7 @@
 ### [`mnemo/study.py`](mnemo/study.py)
 > *The study session engine: due queue, reveal, grade and summary, with injected I/O.*
 
-**Size**: `96` lines (`3602` bytes)
+**Size**: `98` lines (`3743` bytes)
 
 **Classes:**
 - `class SessionReport` - *What one study session did, as its summary line reports it.*
@@ -174,8 +174,8 @@
 **Functions:**
 - `def _wants_quit(line)` - *Whether a read line is an explicit quit or the end of the input.*
 - `def _ask_grade(read_line, write_line)` - *Read grades until one is valid; None when the reader quits or ends.*
-- `def _announce_empty(deck, write_line)` - *Say why no session can run: an empty deck or nothing due.*
-- `def _summarize(deck, today, reviewed, passed, lapsed, write_line)` - *Close the session with its counts and what the deck waits for now.*
+- `def _announce_empty(deck, write_line, deck_name)` - *Say why no session can run: an empty deck or nothing due.*
+- `def _summarize(deck, today, reviewed, passed, lapsed, write_line, deck_name)` - *Close the session with its counts and what the deck waits for now.*
 - `def run_session(deck, today, limit, read_line, write_line, deck_name)` - *Run one bounded session over the due cards; q and end-of-input quit gracefully.*
 
 ---
@@ -188,7 +188,7 @@
 ### [`tests/test_cli.py`](tests/test_cli.py)
 > *End-to-end tests of the command-line interface through `main`.*
 
-**Size**: `221` lines (`9196` bytes)
+**Size**: `239` lines (`10047` bytes)
 
 **Classes:**
 - `class CliTests`
@@ -215,6 +215,8 @@
   - Method `.test_list_filter_by_deck()`
   - Method `.test_study_filter_by_deck()`
   - Method `.test_stats_filter_by_deck()`
+  - Method `.test_empty_deck_filter_fails_for_list_study_and_stats()`
+  - Method `.test_deck_io_error_prints_the_triad()`
   - Method `.test_non_ascii_cards_print_on_a_legacy_console()`
 
 ---
@@ -248,7 +250,7 @@
 ### [`tests/test_models.py`](tests/test_models.py)
 > *Tests of the card and review value objects and their parsing rules.*
 
-**Size**: `107` lines (`3956` bytes)
+**Size**: `120` lines (`4587` bytes)
 
 **Classes:**
 - `class ParseTests`
@@ -266,6 +268,7 @@
   - Method `.test_card_round_trips_through_dicts()`
   - Method `.test_card_from_dict_fills_absent_optional_fields()`
   - Method `.test_card_from_dict_rejects_bad_records()`
+  - Method `.test_card_rejects_negative_or_boolean_scheduling_counters()`
 - `class ReviewTests`
   - Method `.test_review_round_trips_through_dicts()`
   - Method `.test_review_rejects_out_of_range_quality()`
@@ -275,7 +278,7 @@
 ### [`tests/test_scheduler.py`](tests/test_scheduler.py)
 > *Tests of the SM-2 scheduling functions, pinned to exact dates and values.*
 
-**Size**: `104` lines (`4562` bytes)
+**Size**: `108` lines (`4737` bytes)
 
 **Classes:**
 - `class GradeParsingTests`
@@ -287,7 +290,8 @@
   - Method `.test_second_successful_review_uses_six_days()`
   - Method `.test_third_review_multiplies_interval_by_updated_ease()`
   - Method `.test_failed_review_resets_the_streak()`
-  - Method `.test_zero_grade_keeps_the_published_formula()`
+  - Method `.test_perfect_grade_raises_the_ease()`
+  - Method `.test_zero_grade_lowers_the_ease()`
   - Method `.test_ease_never_drops_below_the_floor()`
   - Method `.test_out_of_range_quality_is_refused()`
   - Method `.test_identity_fields_survive_and_input_is_untouched()`
@@ -321,7 +325,7 @@
 ### [`tests/test_storage.py`](tests/test_storage.py)
 > *Fault-injection tests for the atomic deck store (PRINCIPLE-013).*
 
-**Size**: `143` lines (`5975` bytes)
+**Size**: `154` lines (`6565` bytes)
 
 **Classes:**
 - `class StoreFaultTests`
@@ -332,6 +336,7 @@
   - Method `.test_second_save_keeps_a_backup()`
   - Method `.test_malformed_json_recovers_from_backup()`
   - Method `.test_recovery_restores_the_deck_file_in_place()`
+  - Method `.test_restore_failure_returns_the_recovered_state()`
   - Method `.test_zero_byte_file_recovers_from_backup()`
   - Method `.test_unknown_version_is_refused_in_place()`
   - Method `.test_insufficient_disk_space_writes_nothing()`
@@ -350,7 +355,7 @@
 ### [`tests/test_study.py`](tests/test_study.py)
 > *Tests of the study session engine over scripted input and captured output.*
 
-**Size**: `130` lines (`5558` bytes)
+**Size**: `148` lines (`6475` bytes)
 
 **Classes:**
 - `class ScriptedInput` - *A read_line double that replays lines and reports EOF as None.*
@@ -373,5 +378,7 @@
   - Method `.test_summary_names_the_next_due_day()`
   - Method `.test_session_without_due_cards_says_so()`
   - Method `.test_session_honors_the_deck_filter()`
+  - Method `.test_session_summary_honors_the_deck_filter()`
+  - Method `.test_empty_session_message_honors_the_deck_filter()`
 
 ---

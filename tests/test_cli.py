@@ -207,6 +207,24 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("cards: 1", output)
 
+    def test_empty_deck_filter_fails_for_list_study_and_stats(self):
+        self.run_cli("add", "front", "--back", "back")
+        for command in ("list", "study", "stats"):
+            with self.subTest(command=command):
+                code, _, stderr = self.run_cli(command, "--deck", "")
+                self.assertEqual(code, 1)
+                self.assertIn("deck name is blank", stderr.lower())
+
+    def test_deck_io_error_prints_the_triad(self):
+        from unittest import mock
+        with mock.patch("mnemo.cli.StateStore") as store:
+            store.return_value.read.side_effect = OSError("disk unavailable")
+            code, _, stderr = self.run_cli("list")
+        self.assertEqual(code, 1)
+        self.assertIn("The deck could not be accessed", stderr)
+        self.assertIn("Why:", stderr)
+        self.assertIn("Fix:", stderr)
+
     def test_non_ascii_cards_print_on_a_legacy_console(self):
         buffer = io.BytesIO()
         legacy = io.TextIOWrapper(buffer, encoding="cp1254", errors="strict")

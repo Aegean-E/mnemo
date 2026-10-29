@@ -81,6 +81,10 @@ class CardTests(unittest.TestCase):
                 "due": "2026-10-21", "added": "2026-10-21"}
         bad_records = [
             {**base, "ease": 1.0},
+            {**base, "ease": "high"},
+            {**base, "ease": None},
+            {**base, "ease": float("nan")},
+            {**base, "ease": float("inf")},
             {**base, "interval_days": -1},
             {**base, "repetitions": -2},
             {**base, "lapses": -1},
@@ -90,6 +94,15 @@ class CardTests(unittest.TestCase):
         for record in bad_records:
             with self.assertRaises(MnemoError):
                 Card.from_dict(record)
+
+    def test_card_rejects_negative_or_boolean_scheduling_counters(self):
+        base = dict(id=1, front="f", back="b", deck="default",
+                    due="2026-10-21", added="2026-10-21")
+        for field in ("interval_days", "repetitions", "lapses"):
+            for value in (-1, True):
+                with self.subTest(field=field, value=value):
+                    with self.assertRaises(MnemoError):
+                        Card(**base, **{field: value})
 
 
 class ReviewTests(unittest.TestCase):

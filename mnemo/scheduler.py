@@ -15,7 +15,7 @@ def grade_from_text(text: object) -> int:
     answer = text.strip().lower() if isinstance(text, str) else ""
     if answer in GRADE_WORDS:
         return GRADE_WORDS[answer]
-    if answer.isdigit() and GRADE_MIN <= int(answer) <= GRADE_MAX:
+    if answer.isdecimal() and GRADE_MIN <= int(answer) <= GRADE_MAX:
         return int(answer)
     raise MnemoError(
         f"'{text}' is not a grade.",
@@ -26,7 +26,7 @@ def grade_from_text(text: object) -> int:
 
 def _ease_after(ease: float, quality: int) -> float:
     """The published SM-2 ease update, never dropping below the floor."""
-    return max(EASE_FLOOR, ease + (0.1 - quality * (0.08 + quality * 0.02)))
+    return max(EASE_FLOOR, ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
 
 
 def next_state(card: Card, quality: int, today: str) -> Card:
