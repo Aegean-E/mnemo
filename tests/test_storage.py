@@ -140,6 +140,12 @@ class StoreFaultTests(unittest.TestCase):
         self._write(sample_state(1))
         self.assertEqual([card.id for card in self.store.read().cards], [1])
 
+    def test_release_keeps_a_lock_replaced_by_another_writer(self):
+        with self.store._lock():
+            self.store.lock_path.write_text("other-writer", encoding="ascii")
+        self.assertTrue(self.store.lock_path.exists())
+        self.assertEqual(self.store.lock_path.read_text(encoding="ascii"), "other-writer")
+
     def test_fsync_directory_failure_is_reported(self):
         error = io.StringIO()
         with mock.patch.object(storage.os, "name", "posix"):

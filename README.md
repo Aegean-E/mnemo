@@ -47,7 +47,8 @@ machine.
   interval grows 1, 6, then interval x ease, and a grade below 3 resets the streak to a 1-day
   interval. Every date is injected, so the schedule is deterministic and replayable.
 - **Stable ids.** `list` shows each id, and later commands address cards by it. A new id is one
-  past the highest remaining id, so removing the newest card frees that id for the next one.
+  past the highest id in the cards and the append-only review log, so a reviewed card's id is
+  never reused; an unreviewed card's id can be reused safely.
 - **Crash-safe writes.** Each save keeps a `.bak`, writes a temporary file, fsyncs it, then
   replaces the deck atomically. A transient Windows sharing violation is retried; any other
   replace failure is reported at once. A failed backup or directory fsync prints a warning. A

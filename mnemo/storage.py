@@ -236,12 +236,13 @@ class StateStore:
     def _lock(self) -> Iterator[None]:
         """Hold the advisory lock file for one read-modify-write."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        token = f"{os.getpid()}:{time.time_ns()}"
         deadline = time.monotonic() + LOCK_TIMEOUT_SECONDS
         acquired = False
         while not acquired:
             try:
                 with self.lock_path.open("x", encoding="ascii") as handle:
-                    handle.write(str(os.getpid()))
+                    handle.write(token)
                 acquired = True
             except FileExistsError:
                 self._break_stale_lock()
@@ -261,7 +262,12 @@ class StateStore:
         try:
             yield
         finally:
-            self.lock_path.unlink(missing_ok=True)
+            try:
+                if self.lock_path.read_text(encoding="ascii") == token:
+                    self.lock_path.unlink(missing_ok=True)
+            except OSError as exc:
+                print(f"[WARN] Could not release lock {self.lock_path.name}: {exc}",
+                      file=sys.stderr)
 
     def _break_stale_lock(self) -> None:
         """Break a lock older than 30 seconds by atomically renaming it aside."""

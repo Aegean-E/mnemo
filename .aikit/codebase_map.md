@@ -9,8 +9,8 @@
 - **Total Python Modules**: `18`
 - **Total Classes**: `21`
 - **Total Top-Level Functions**: `32`
-- **Total Class Methods**: `146`
-- **Total Source Lines**: `2025`
+- **Total Class Methods**: `148`
+- **Total Source Lines**: `2047`
 
 ---
 
@@ -51,7 +51,7 @@
 ### [`mnemo/deck.py`](mnemo/deck.py)
 > *Deck operations: adding, editing, removing, listing and reviewing cards.*
 
-**Size**: `140` lines (`5853` bytes)
+**Size**: `142` lines (`5957` bytes)
 
 **Classes:**
 - `class Deck` - *The card operations one command needs, backed by one deck file.*
@@ -138,7 +138,7 @@
 ### [`mnemo/storage.py`](mnemo/storage.py)
 > *Crash-resilient JSON storage for the deck (PRINCIPLE-013).*
 
-**Size**: `282` lines (`11996` bytes)
+**Size**: `288` lines (`12291` bytes)
 
 **Classes:**
 - `class DeckState` - *The whole deck file: every card and every logged review.*
@@ -224,7 +224,7 @@
 ### [`tests/test_deck.py`](tests/test_deck.py)
 > *Tests of deck operations over the atomic store.*
 
-**Size**: `117` lines (`5122` bytes)
+**Size**: `125` lines (`5574` bytes)
 
 **Classes:**
 - `class DeckTests`
@@ -241,6 +241,7 @@
   - Method `.test_edit_card_changes_only_the_given_fields()`
   - Method `.test_edit_card_missing_raises()`
   - Method `.test_remove_card_returns_it_and_frees_the_id()`
+  - Method `.test_removing_a_reviewed_card_does_not_reuse_its_id()`
   - Method `.test_remove_card_missing_raises()`
   - Method `.test_entries_filter_by_deck()`
   - Method `.test_due_cards_filter_by_deck()`
@@ -325,7 +326,7 @@
 ### [`tests/test_storage.py`](tests/test_storage.py)
 > *Fault-injection tests for the atomic deck store (PRINCIPLE-013).*
 
-**Size**: `154` lines (`6565` bytes)
+**Size**: `160` lines (`6891` bytes)
 
 **Classes:**
 - `class StoreFaultTests`
@@ -344,6 +345,7 @@
   - Method `.test_replace_retries_a_permission_error_then_succeeds()`
   - Method `.test_replace_does_not_retry_a_non_transient_error()`
   - Method `.test_stale_lock_is_broken()`
+  - Method `.test_release_keeps_a_lock_replaced_by_another_writer()`
   - Method `.test_fsync_directory_failure_is_reported()`
 
 **Functions:**

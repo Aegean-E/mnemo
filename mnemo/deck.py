@@ -28,8 +28,10 @@ class Deck:
         created: List[Card] = []
 
         def mutate(state: DeckState) -> DeckState:
+            used_ids = [existing.id for existing in state.cards]
+            used_ids.extend(review.card_id for review in state.reviews)
             card = Card(
-                id=max((existing.id for existing in state.cards), default=0) + 1,
+                id=max(used_ids, default=0) + 1,
                 front=front,
                 back=back,
                 deck=deck,

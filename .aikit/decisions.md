@@ -17,8 +17,8 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   copies the current file to `.bak`, writes a unique temporary file, fsyncs it, then replaces
   the deck; each read-modify-write holds `<deck>.lock` for at most 3 seconds, and a lock older
   than 30 seconds is broken. Malformed JSON is quarantined and recovered from `.bak`; an
-  unknown `version` is refused in place. Card ids are one past the highest remaining id, so
-  removing the newest card frees its id.
+  unknown `version` is refused in place. Card ids are one past the highest id in the cards and
+  the append-only review log, so a reviewed card's id is never reused.
 - **Consequences**: The deck is easy to inspect, back up and edit by hand, and a crash can lose
   at most the single write in flight. The whole deck is held in memory per command, which is
   fine at personal-study scale but would need a different store for shared or huge decks. The
@@ -78,22 +78,24 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
   neglected deck shows its backlog in one number. Retention over the whole log moves slowly;
   windowed retention is deliberately not invented here.
 
-### ADR-005: Edits are partial, removals free the id, and the review log is append-only
+### ADR-005: Edits are partial, reviewed ids are never reused, and the review log is append-only
 - **Date**: 2026-10-21
 - **Status**: Accepted
 - **Context**: Cards are living objects: typos must be fixable and finished material deletable,
   but the scheduling state a card earned must survive a text fix, and the statistics must not
-  quietly rewrite history when a card goes away.
+  quietly rewrite history when a card goes away. Reusing the id of a removed card would make its
+  old review log look like the new card's history.
 - **Decision**: `edit` changes only the fields named on the command line (front, back, deck) and
   requires at least one; every scheduling field (ease, interval, repetitions, lapses, due)
-  survives untouched. `remove` deletes the card and returns it; a new card takes one past the
-  highest remaining id, so removing the newest card frees its id. The review log is never
-  rewritten by `edit` or `remove`; `stats --deck` counts only the reviews of cards still in that
-  deck, while the unfiltered `stats` keeps every logged review.
-- **Consequences**: Fixing a typo cannot damage a schedule, and ids stay small and stable for
-  the cards that remain. Removing a card leaves orphan log entries, so whole-log retention
-  remembers answers of cards no longer in the deck; that is the honest history, and bounding the
-  log remains the open cost noted in ADR-001.
+  survives untouched. `remove` deletes the card and returns it. A new card takes one past the
+  highest id in both the cards and the append-only review log, so a reviewed card's id is never
+  reused; an unreviewed card's id can be reused safely. The review log is never rewritten by
+  `edit` or `remove`; `stats --deck` counts only the reviews of cards still in that deck, while
+  the unfiltered `stats` keeps every logged review.
+- **Consequences**: Fixing a typo cannot damage a schedule, and ids stay stable for the cards
+  that remain. Removing a reviewed card leaves its log entries reserved under its old id, so
+  whole-log retention remembers answers of cards no longer in the deck without attributing them
+  to a new card. Bounding the log remains the open cost noted in ADR-001.
 
 ### ADR-006: A corrupt deck is restored in place from its backup
 - **Date**: 2026-10-22

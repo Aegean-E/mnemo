@@ -96,6 +96,14 @@ class DeckTests(unittest.TestCase):
         rewritten = self.deck.add_card("front 3", "back", "default", "2026-10-21")
         self.assertEqual(rewritten.id, 2)
 
+    def test_removing_a_reviewed_card_does_not_reuse_its_id(self):
+        first = self.deck.add_card("front 1", "back", "default", "2026-10-21")
+        self.deck.record_review(first.id, 4, "2026-10-21")
+        self.deck.remove_card(first.id)
+        new = self.deck.add_card("front 2", "back", "default", "2026-10-21")
+        self.assertEqual(new.id, 2)
+        self.assertEqual([review.card_id for review in self.deck.store.read().reviews], [1])
+
     def test_remove_card_missing_raises(self):
         with self.assertRaises(MnemoError):
             self.deck.remove_card(9)
