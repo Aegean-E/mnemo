@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "next_run_id": 4,
+  "next_run_id": 5,
   "active_run": null,
-  "last_run": "run-3",
+  "last_run": "run-4",
   "runs": [
     {
       "id": "run-1",
@@ -1391,44 +1391,151 @@
           "timestamp": "2026-10-29T19:08:56"
         }
       ]
+    },
+    {
+      "id": "run-4",
+      "start": 2,
+      "step": 3,
+      "stop": 2,
+      "stage": 1,
+      "window": 2,
+      "audited_commits": [
+        "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+        "997b8d4be3e0ba464850a54e376f574a4f47ab31"
+      ],
+      "status": "completed",
+      "created": "2026-10-29T19:12:48",
+      "updated": "2026-10-29T19:12:51",
+      "last_audit": {
+        "run": "run-4",
+        "stage": 1,
+        "window": 2,
+        "commits": [
+          "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+          "997b8d4be3e0ba464850a54e376f574a4f47ab31"
+        ],
+        "new_commits": [
+          "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+          "997b8d4be3e0ba464850a54e376f574a4f47ab31"
+        ],
+        "prior_commits": [],
+        "findings": [],
+        "repairs": [],
+        "counts": {},
+        "reviewed": 11,
+        "review": {
+          "status": "reviewed",
+          "rejected": [],
+          "files": [
+            ".aikit/codebase_map.md",
+            "mnemo/cli.py",
+            "mnemo/deck.py",
+            "mnemo/models.py",
+            "mnemo/storage.py",
+            "mnemo/study.py",
+            "tests/test_cli.py",
+            "tests/test_deck.py",
+            "tests/test_models.py",
+            "tests/test_storage.py",
+            "tests/test_study.py"
+          ],
+          "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-0e495069eb09.md",
+          "redacted": 0,
+          "reason": "the answer held no findings",
+          "findings": []
+        },
+        "skipped": [],
+        "tests": {},
+        "gates": {},
+        "timestamp": "2026-10-29T19:12:51"
+      },
+      "history": [
+        {
+          "run": "run-4",
+          "stage": 1,
+          "window": 2,
+          "commits": [
+            "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+            "997b8d4be3e0ba464850a54e376f574a4f47ab31"
+          ],
+          "new_commits": [
+            "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+            "997b8d4be3e0ba464850a54e376f574a4f47ab31"
+          ],
+          "prior_commits": [],
+          "findings": [],
+          "repairs": [],
+          "counts": {},
+          "reviewed": 11,
+          "review": {
+            "status": "reviewed",
+            "rejected": [],
+            "files": [
+              ".aikit/codebase_map.md",
+              "mnemo/cli.py",
+              "mnemo/deck.py",
+              "mnemo/models.py",
+              "mnemo/storage.py",
+              "mnemo/study.py",
+              "tests/test_cli.py",
+              "tests/test_deck.py",
+              "tests/test_models.py",
+              "tests/test_storage.py",
+              "tests/test_study.py"
+            ],
+            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-0e495069eb09.md",
+            "redacted": 0,
+            "reason": "the answer held no findings",
+            "findings": []
+          },
+          "skipped": [],
+          "tests": {},
+          "gates": {},
+          "timestamp": "2026-10-29T19:12:51"
+        }
+      ]
     }
   ],
   "stage": 1,
   "window": 2,
   "audited_commits": [
-    "5a9217b4794cea5de61b681c2e9168aa603cbb08",
-    "a9ee2c3a358d225cda15568d1659d129eda4cc61"
+    "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+    "997b8d4be3e0ba464850a54e376f574a4f47ab31"
   ],
   "last_audit": {
-    "run": "run-3",
+    "run": "run-4",
     "stage": 1,
     "window": 2,
     "commits": [
-      "5a9217b4794cea5de61b681c2e9168aa603cbb08",
-      "a9ee2c3a358d225cda15568d1659d129eda4cc61"
+      "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+      "997b8d4be3e0ba464850a54e376f574a4f47ab31"
     ],
     "new_commits": [
-      "5a9217b4794cea5de61b681c2e9168aa603cbb08",
-      "a9ee2c3a358d225cda15568d1659d129eda4cc61"
+      "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+      "997b8d4be3e0ba464850a54e376f574a4f47ab31"
     ],
     "prior_commits": [],
     "findings": [],
     "repairs": [],
     "counts": {},
-    "reviewed": 7,
+    "reviewed": 11,
     "review": {
       "status": "unreviewed",
       "rejected": [],
       "files": [
         ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        "README.md",
+        "mnemo/cli.py",
         "mnemo/deck.py",
+        "mnemo/models.py",
         "mnemo/storage.py",
+        "mnemo/study.py",
+        "tests/test_cli.py",
         "tests/test_deck.py",
-        "tests/test_storage.py"
+        "tests/test_models.py",
+        "tests/test_storage.py",
+        "tests/test_study.py"
       ],
-      "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-5a9217b4794c.md",
+      "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-0e495069eb09.md",
       "redacted": 0,
       "reason": "awaiting the reviewer's findings",
       "findings": []
@@ -1436,39 +1543,43 @@
     "skipped": [],
     "tests": {},
     "gates": {},
-    "timestamp": "2026-10-29T19:08:56"
+    "timestamp": "2026-10-29T19:12:51"
   },
   "history": [
     {
-      "run": "run-3",
+      "run": "run-4",
       "stage": 1,
       "window": 2,
       "commits": [
-        "5a9217b4794cea5de61b681c2e9168aa603cbb08",
-        "a9ee2c3a358d225cda15568d1659d129eda4cc61"
+        "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+        "997b8d4be3e0ba464850a54e376f574a4f47ab31"
       ],
       "new_commits": [
-        "5a9217b4794cea5de61b681c2e9168aa603cbb08",
-        "a9ee2c3a358d225cda15568d1659d129eda4cc61"
+        "0e495069eb09c36980d0f3a32b5bc04455e72ce7",
+        "997b8d4be3e0ba464850a54e376f574a4f47ab31"
       ],
       "prior_commits": [],
       "findings": [],
       "repairs": [],
       "counts": {},
-      "reviewed": 7,
+      "reviewed": 11,
       "review": {
         "status": "unreviewed",
         "rejected": [],
         "files": [
           ".aikit/codebase_map.md",
-          ".aikit/decisions.md",
-          "README.md",
+          "mnemo/cli.py",
           "mnemo/deck.py",
+          "mnemo/models.py",
           "mnemo/storage.py",
+          "mnemo/study.py",
+          "tests/test_cli.py",
           "tests/test_deck.py",
-          "tests/test_storage.py"
+          "tests/test_models.py",
+          "tests/test_storage.py",
+          "tests/test_study.py"
         ],
-        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-5a9217b4794c.md",
+        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\mnemo\\.aikit\\reforge.reviews\\stage-1-0e495069eb09.md",
         "redacted": 0,
         "reason": "awaiting the reviewer's findings",
         "findings": []
@@ -1476,7 +1587,7 @@
       "skipped": [],
       "tests": {},
       "gates": {},
-      "timestamp": "2026-10-29T19:08:56"
+      "timestamp": "2026-10-29T19:12:51"
     }
   ]
 }
